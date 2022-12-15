@@ -1,0 +1,28 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - views
+name: documents
+label: 'Documents'
+display: modal
+display_configuration:
+  width: ''
+  height: ''
+  link_text: 'Select documents'
+  auto_open: false
+selection_display: no_display
+selection_display_configuration: {  }
+widget_selector: single
+widget_selector_configuration: {  }
+widgets:
+  81a72a9d-990a-4ef3-8090-011164d81cdb:
+    id: view
+    uuid: 81a72a9d-990a-4ef3-8090-011164d81cdb
+    label: view
+    weight: 1
+    settings:
+      submit_text: 'Select documents'
+      auto_select: false
+      view: documents
+      view_display: entity_browser_select_documents

@@ -1,0 +1,4 @@
+services:
+  file.language_manager:
+    class: 'Drupal\drupal_document\Services\FileLanguageManager'
+    arguments: ['@language_manager']

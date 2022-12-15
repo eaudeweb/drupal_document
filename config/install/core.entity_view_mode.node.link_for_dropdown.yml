@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.link_for_dropdown
+label: 'Link for Dropdown'
+targetEntityType: node
+cache: true

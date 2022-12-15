@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * @file
+ * Basic module file for drupal_document module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\search_api\IndexInterface;
+use Drupal\search_api\Item\Field;
+
+/**
+ * Implements hook_theme().
+ */
+function drupal_document_theme($existing, $type, $theme, $path) {
+  return [
+    'dropdown_file_language' => [
+      'template' => 'dropdown-file-language',
+      'variables' => ['items' => NULL, 'object' => NULL, 'attributes' => []],
+    ],
+  ];
+}
+
+/**
+ * Do not index langcode when file is not displayed.
+ *
+ * Implements hook_search_api_index_items_alter().
+ */
+function drupal_document_search_api_index_items_alter(IndexInterface $index, array &$items) {
+  if (!\Drupal::moduleHandler()->moduleExists('search_api')) {
+    return;
+  }
+  $solrField = 'file_language';
+  /** @var \Drupal\search_api\Item\Item $item */
+  foreach ($items as &$item) {
+    /** @var \Drupal\search_api\Item\Field $languageField */
+    $languageField = $item->getField($solrField);
+    if (!$languageField instanceof Field) {
+      return;
+    }
+    $langcodes = $languageField->getValues();
+    $propertyPath = $item->getField($solrField)->getPropertyPath();
+    $property = explode(':', $propertyPath);
+    $fieldEntity = $property[0];
+    $entity = $item->getOriginalObject()->getValue();
+    if ($entity->hasField($fieldEntity)) {
+      $values = $entity->get($fieldEntity)->getValue();
+      foreach ($values as $value) {
+        if (!$value['display']) {
+          if (($key = array_search($value['language'], $langcodes)) !== FALSE) {
+            unset($langcodes[$key]);
+          }
+        }
+      }
+      $languageField->setValues($langcodes);
+      $item->setField($solrField, $languageField);
+    }
+  }
+}
+
+/**
+ * Implements hook_field_widget_form_alter().
+ */
+function drupal_document_field_widget_form_alter(&$element, FormStateInterface &$form_state, $context) {
+  if (!empty($element['entity_browser'])) {
+    $default_value = $element['entity_browser']['#default_value'];
+    $ids = [];
+    foreach ($default_value as $entity) {
+      $ids[] = $entity->id();
+    }
+    $element['entity_browser']['#widget_context']['current_ids'] = implode('+', $ids);
+  }
+}

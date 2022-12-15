@@ -1,0 +1,26 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_files
+    - node.type.document
+  module:
+    - drupal_document
+id: node.document.field_files
+field_name: field_files
+entity_type: node
+bundle: document
+label: Files
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  file_directory: documents
+  file_extensions: 'pdf doc docx xlsx'
+  max_filesize: ''
+  description_field: 1
+  handler: 'default:file'
+  handler_settings: {  }
+field_type: file_language

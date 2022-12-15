@@ -1,0 +1,25 @@
+{
+    "name": "drupal/drupal_document",
+    "type": "drupal-module",
+    "description": "Provides a Drupal Document content type to store organisational multilingual structured PDF/Word etc. documents\n\n",
+    "license": "GPL-2.0-or-later",
+    "minimum-stability": "dev",
+    "repositories": [
+        {
+            "type": "git",
+            "url": "git@github.com:eaudeweb/drupal_document.git"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/eaudeweb/drupal_document"
+    },
+    "authors": [
+        {
+            "name": "Daniela Eremia",
+            "email": "dani.eremia@yahoo.com"
+        }
+    ],
+    "require": {
+        "drupal/entity_browser": "^2.8"
+    }
+}
