@@ -2,7 +2,7 @@ name: EDW Document
 description: Provides a Drupal Document content type to store organisational multilingual structured PDF/Word etc. documents
 package: EDW
 type: module
-core_version_requirement: ^8.9 || ^9.0
+core_version_requirement: ^9.2 || ^10
 dependencies:
   - drupal:file
   - entity_browser:entity_browser

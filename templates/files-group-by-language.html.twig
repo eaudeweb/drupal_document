@@ -1,0 +1,58 @@
+{#
+/**
+ * @file
+ * files-group-by-language.html.twig
+ *
+ * Available variables:
+ *  - rows: Array with files grouped by language code.
+ */
+#}
+{% if rows %}
+  {% if rows[current_language] is not empty %}
+    {% set active_tab = current_language  %}
+  {% elseif rows[current_language] is empty and rows['en'] is not empty %}
+    {% set active_tab = 'en'  %}
+  {% else %}
+    {% set active_tab = false %}
+  {% endif %}
+  <div class="document document-files">
+    <nav class="language-tab">
+      <h5>{{ 'Language'|t }}</h5>
+      <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        {% for lang, items in rows %}
+          {% set file_attribute = create_attribute() %}
+          {% set tab_classes = [
+            'nav-item',
+            'nav-link',
+            active_tab == lang ? 'active',
+            items is empty ? 'disabled'
+          ] %}
+          <a href="#nav-paragraph-{{ lang }}" {{ file_attribute.addClass(tab_classes) }} id="nav-paragraph-{{ lang }}-tab"
+             aria-controls="nav-paragraph-{{ lang }}" role="tab" data-toggle="tab" aria-selected="true">
+            {{ lang|upper }}
+          </a>
+        {% endfor %}
+      </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+      {% for lang, items in rows %}
+        {% if items %}
+          <div class="tab-pane fade show {% if active_tab == lang %}active {% endif %}" id="nav-paragraph-{{ lang }}"
+               role="tabpanel" aria-labelledby="nav-paragraph-{{ lang }}-tab">
+            <h5>{{ 'Files'|t }}</h5>
+            {% for item in items %}
+              <div class="file-link">
+                {% if item.filemime %}
+                  <span class="file__ext">{{ item.filemime }}</span>
+                {% endif %}
+                {% if item.content %}
+                  <span class="file__link">{{ item.content }}</span>
+                {% endif %}
+                </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}

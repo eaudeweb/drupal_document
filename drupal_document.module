@@ -18,6 +18,13 @@ function drupal_document_theme($existing, $type, $theme, $path) {
       'template' => 'dropdown-file-language',
       'variables' => ['items' => NULL, 'object' => NULL, 'attributes' => []],
     ],
+    'files_group_by_language' => [
+        'template' => 'files-group-by-language',
+        'variables' => [
+            'rows' => [],
+            'current_language' => [],
+        ],
+    ],
   ];
 }
 
