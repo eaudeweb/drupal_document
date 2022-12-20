@@ -64,17 +64,3 @@ function drupal_document_search_api_index_items_alter(IndexInterface $index, arr
     }
   }
 }
-
-/**
- * Implements hook_field_widget_form_alter().
- */
-function drupal_document_field_widget_form_alter(&$element, FormStateInterface &$form_state, $context) {
-  if (!empty($element['entity_browser'])) {
-    $default_value = $element['entity_browser']['#default_value'];
-    $ids = [];
-    foreach ($default_value as $entity) {
-      $ids[] = $entity->id();
-    }
-    $element['entity_browser']['#widget_context']['current_ids'] = implode('+', $ids);
-  }
-}

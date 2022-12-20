@@ -5,4 +5,4 @@ type: module
 core_version_requirement: ^9.2 || ^10
 dependencies:
   - drupal:file
-  - entity_browser:entity_browser
+  - drupal_utilities:drupal_utilities
