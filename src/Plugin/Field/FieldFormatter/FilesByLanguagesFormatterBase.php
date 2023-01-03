@@ -149,7 +149,7 @@ class FilesByLanguagesFormatterBase extends EntityReferenceFormatterBase {
         $element = [
           'filemime' => [
             '#type' => 'markup',
-            '#markup' => pathinfo($file->getFileUri())['extension'],
+            '#markup' => pathinfo($file->getFileUri(), PATHINFO_EXTENSION),
           ],
           'content' => [
             '#theme' => 'file_link',

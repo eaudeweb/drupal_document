@@ -3,6 +3,7 @@
 namespace Drupal\drupal_document\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\SortArray;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
@@ -10,7 +11,6 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Render\ElementInfoManagerInterface;
-use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\file\Plugin\Field\FieldWidget\FileWidget;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -42,13 +42,6 @@ class FileMultiLanguageWidget extends FileWidget {
   protected $languageManager;
 
   /**
-   * The route match.
-   *
-   * @var \Drupal\Core\Routing\RouteMatchInterface
-   */
-  protected $routeMatch;
-
-  /**
    * Constructor for FileMultiLanguageWidget.
    *
    * @param string $plugin_id
@@ -65,17 +58,14 @@ class FileMultiLanguageWidget extends FileWidget {
    *   The element info manager.
    * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
    *   The language manager.
-   * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
-   *   The route match.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   Entity type manager.
    */
   public function __construct($plugin_id, $pluginDefinition, FieldDefinitionInterface $fieldDefinition, array $settings, array $thirdPartySettings,
-                              ElementInfoManagerInterface $elementInfo, LanguageManagerInterface $languageManager, RouteMatchInterface $routeMatch, EntityTypeManagerInterface $entityTypeManager) {
+                              ElementInfoManagerInterface $elementInfo, LanguageManagerInterface $languageManager, EntityTypeManagerInterface $entityTypeManager) {
     parent::__construct($plugin_id, $pluginDefinition, $fieldDefinition, $settings, $thirdPartySettings, $elementInfo);
     $this->entityTypeManager = $entityTypeManager;
     $this->languageManager = $languageManager;
-    $this->routeMatch = $routeMatch;
   }
 
   /**
@@ -90,7 +80,6 @@ class FileMultiLanguageWidget extends FileWidget {
       $configuration['third_party_settings'],
       $container->get('element_info'),
       $container->get('language_manager'),
-      $container->get('current_route_match'),
       $container->get('entity_type.manager')
     );
   }
@@ -128,10 +117,6 @@ class FileMultiLanguageWidget extends FileWidget {
       ];
 
       if ($entity->hasTranslation($language->getId())) {
-        if ($language->getId() == $entity->language()->getId() && $this->routeMatch->getRouteName() == 'entity.node.content_translation_add') {
-          $elements['languages'][$language->getId()]['data'] = parent::formMultipleElements($this->getEmptyField($items), $form, $form_state);
-          continue;
-        }
         $translatedField = $entity->getTranslation($language->getId())->get($fieldName);
         $elements['languages'][$language->getId()]['data'] = parent::formMultipleElements($translatedField, $form, $form_state);
         continue;
@@ -147,99 +132,83 @@ class FileMultiLanguageWidget extends FileWidget {
    * {@inheritdoc}
    */
   public function extractFormValues(FieldItemListInterface $items, array $form, FormStateInterface $form_state) {
+    // Rewrite the parent::extractFormValues() from WidgetBase.
     $this->extractFormValuesMultiLanguage($items, $form, $form_state);
 
     // Update reference to 'items' stored during upload to take into account
     // changes to values like 'alt' etc.
     // @see \Drupal\file\Plugin\Field\FieldWidget\FileWidget::submit()
     $fieldName = $this->fieldDefinition->getName();
-    $fieldState = static::getWidgetState($form['#parents'], $fieldName, $form_state);
+    $field_state = static::getWidgetState($form['#parents'], $fieldName, $form_state);
 
-    /** @var \Drupal\Core\Entity\EntityStorageInterface $parentStorage */
-    $parentStorage = $this->entityTypeManager->getStorage($items->getEntity()->getEntityTypeId());
+    /** @var \Drupal\Core\Entity\ContentEntityBase $entity */
+    $entity = $items->getEntity();
 
-    /** @var \Drupal\Core\Entity\ContentEntityBase $parentEntity */
-    $parentEntity = $items->getEntity();
-
-    if (!empty($parentEntity->id())) {
-      /** @var \Drupal\Core\Entity\ContentEntityBase $original */
-      $original = $parentStorage->load($parentEntity->id());
-      if ($parentEntity->hasField('created')) {
-        // Load entity because $items->getEntity()->created value is now instead of created time.
-        $parentEntity->set('created', $original->get('created')->value);
-      }
-    }
-
-    $translatableFields = $parentEntity->getTranslatableFields(FALSE);
-    $parentValues = [];
+    $values = [];
+    $translatableFields = $entity->getTranslatableFields(FALSE);
     foreach ($translatableFields as $fieldName => $fieldConfig) {
       switch ($fieldConfig->getFieldDefinition()->getType()) {
         case 'entity_reference':
         case 'text_with_summary':
-          $fieldValue = $parentEntity->get($fieldName)->getValue();
+          $fieldValue = $entity->get($fieldName)->getValue();
           break;
 
         default:
-          $fieldValue = $parentEntity->get($fieldName)->value;
+          $fieldValue = $entity->get($fieldName)->value;
       }
 
-      $parentValues[$fieldName] = $fieldValue;
+      $values[$fieldName] = $fieldValue;
     }
-
-    $currentLangcode = $parentEntity->get('langcode')->value;
+    // Re-create $field_state['items']. We cannot use $field_state['items']
+    // from parent.
+    $currentLangcode = $entity->get('langcode')->value;
     $currentItems = [];
     foreach ($items->getValue() as $item) {
-      $itemLanguage = $item['language'];
-      if ($currentLangcode == $itemLanguage) {
+      $langcode = $item['language'];
+      if ($currentLangcode == $langcode) {
         $currentItems[] = $item;
         continue;
       }
 
-      $parentEntityTranslation = $parentEntity->hasTranslation($itemLanguage) ?
-        $parentEntity->getTranslation($itemLanguage) :
-        $parentEntity->addTranslation($itemLanguage, $parentValues);
+      $translation = $entity->hasTranslation($langcode) ?
+        $entity->getTranslation($langcode) :
+        $entity->addTranslation($langcode, $values);
 
-      $translationValues = array_column($parentEntityTranslation->get($fieldName)->getValue(), 'target_id');
+      $translationValues = array_column($translation->get($fieldName)->getValue(), 'target_id');
       if (in_array($item['target_id'], $translationValues)) {
         continue;
       }
-
-      $parentEntityTranslation->get($fieldName)->appendItem($item);
+      $translation->get($fieldName)->appendItem($item);
     }
 
-    $fieldState['items'] = $currentItems;
-    $removed = 0;
-    foreach ($items as $index => $item) {
+    $field_state['items'] = $currentItems;
+    foreach ($items as $item) {
       if (!in_array($item->target_id, array_column($currentItems, 'target_id'))) {
-        $items->removeItem($index - $removed);
-        $removed++;
+        $items->removeItem($item->getName());
       }
     }
 
-    static::setWidgetState($form['#parents'], $fieldName, $form_state, $fieldState);
+    static::setWidgetState($form['#parents'], $fieldName, $form_state, $field_state);
   }
 
   /**
-   * {@inheritdoc}
+   * Override the default WidgetBase::extractFormValues().
+   *
+   * @param \Drupal\Core\Field\FieldItemListInterface $items
+   *   An array of the field values.
+   * @param array $form
+   *   The form structure where field elements are attached to. This might be a
+   *   full form structure, or a sub-element of a larger form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @see WidgetBase::extractFormValues()
    */
   public function extractFormValuesMultiLanguage(FieldItemListInterface $items, array $form, FormStateInterface $form_state) {
     $fieldName = $this->fieldDefinition->getName();
 
     // Extract the values from $form_state->getValues().
-    $userInput = $form_state->getUserInput();
-    $values = !empty($userInput[$fieldName]) ? $userInput[$fieldName] : [];
-    if (!empty($values['languages'])) {
-      foreach ($values['languages'] as $lang => &$files) {
-        if (empty($files['data'])) {
-          continue;
-        }
-
-        foreach ($files['data'] as &$file) {
-          $file['fids'] = !empty($file['fids']) ? ((array) $file['fids']) : [];
-        }
-      }
-    }
-
+    $path = array_merge($form['#parents'], [$fieldName]);
+    $values = NestedArray::getValue($form_state->getValues(), $path);
     if ($values) {
       // Account for drag-and-drop reordering if needed.
       if (!$this->handlesMultipleValues()) {
@@ -247,12 +216,11 @@ class FileMultiLanguageWidget extends FileWidget {
         unset($values['add_more']);
 
         $newValues = [];
-        foreach ($values['languages'] as $language => $languageValues) {
-          if (!is_array($languageValues) || !array_key_exists('data', $languageValues)) {
+        foreach ($values['languages'] as $language => $data) {
+          if (!is_array($data) || !array_key_exists('data', $data)) {
             continue;
           }
-
-          foreach ($languageValues['data'] as $value) {
+          foreach ($data['data'] as $value) {
             $value['language'] = $language;
             $newValues[] = $value;
           }
@@ -279,12 +247,12 @@ class FileMultiLanguageWidget extends FileWidget {
       $items->filterEmptyItems();
 
       // Put delta mapping in $form_state, so that flagErrors() can use it.
-      $fieldState = static::getWidgetState($form['#parents'], $fieldName, $form_state);
+      $field_state = static::getWidgetState($form['#parents'], $fieldName, $form_state);
       foreach ($items as $delta => $item) {
-        $fieldState['original_deltas'][$delta] = isset($item->_original_delta) ? $item->_original_delta : $delta;
+        $field_state['original_deltas'][$delta] = $item->_original_delta ?? $delta;
         unset($item->_original_delta, $item->_weight);
       }
-      static::setWidgetState($form['#parents'], $fieldName, $form_state, $fieldState);
+      static::setWidgetState($form['#parents'], $fieldName, $form_state, $field_state);
     }
   }
 
