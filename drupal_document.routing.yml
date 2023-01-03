@@ -1,0 +1,21 @@
+document.modal:
+  path: '/document-download/modal/{node}/{field_name}'
+  defaults:
+    _title: 'Modal'
+    _controller: '\Drupal\drupal_document\Controller\DocumentController::modal'
+  requirements:
+    _permission: 'access content'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+document.download_documents_form:
+  path: '/download-documents'
+  defaults:
+    _form: Drupal\drupal_document\Form\DownloadDocumentsForm
+    _title: 'Download documents'
+    entityTypeId: NULL
+    entityIds: NULL
+  requirements:
+    _permission: 'access content'

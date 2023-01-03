@@ -25,6 +25,10 @@ function drupal_document_theme($existing, $type, $theme, $path) {
             'current_language' => [],
         ],
     ],
+    'download_modal' => [
+      'template' => 'download-modal',
+      'variables' => ['button' => NULL, 'object' => NULL, 'attributes' => []],
+    ],
   ];
 }
 

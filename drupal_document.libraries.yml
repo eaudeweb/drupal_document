@@ -1,0 +1,6 @@
+download:
+  js:
+    js/download-documents.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once

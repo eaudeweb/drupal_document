@@ -2,3 +2,6 @@ services:
   file.language_manager:
     class: 'Drupal\drupal_document\Services\FileLanguageManager'
     arguments: ['@language_manager']
+  document.manager:
+    class: 'Drupal\drupal_document\Services\DocumentManager'
+    arguments: ['@current_route_match', '@entity_type.manager', '@extension.list.module', '@file_url_generator', '@file_system', '@language_manager']

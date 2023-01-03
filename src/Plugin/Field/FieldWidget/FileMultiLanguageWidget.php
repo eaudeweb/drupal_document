@@ -209,6 +209,16 @@ class FileMultiLanguageWidget extends FileWidget {
     // Extract the values from $form_state->getValues().
     $path = array_merge($form['#parents'], [$fieldName]);
     $values = NestedArray::getValue($form_state->getValues(), $path);
+    if (!empty($values['languages'])) {
+      foreach ($values['languages'] as &$files) {
+        if (empty($files['data'])) {
+          continue;
+        }
+        foreach ($files['data'] as &$file) {
+          $file['fids'] = !empty($file['fids']) ? ((array) $file['fids']) : [];
+        }
+      }
+    }
     if ($values) {
       // Account for drag-and-drop reordering if needed.
       if (!$this->handlesMultipleValues()) {
