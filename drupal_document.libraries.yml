@@ -4,3 +4,15 @@ download:
   dependencies:
     - core/jquery
     - core/jquery.once
+
+documents_form:
+  js:
+    js/documents-form.js: {}
+  dependecies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupal
+    - core/drupalSettings
+    - datatables/datatables_core
+    - datatables/datatables_buttons
+    - drupal.tableselect

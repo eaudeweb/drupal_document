@@ -5,7 +5,12 @@
  * Basic module file for drupal_document module.
  */
 
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\OpenModalDialogCommand;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Url;
+use Drupal\drupal_document\Form\DownloadDocumentsForm;
 use Drupal\search_api\IndexInterface;
 use Drupal\search_api\Item\Field;
 
@@ -66,5 +71,66 @@ function drupal_document_search_api_index_items_alter(IndexInterface $index, arr
       $languageField->setValues($langcodes);
       $item->setField($solrField, $languageField);
     }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function drupal_document_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if (isset($form['views_bulk_operations_bulk_form'])) {
+    /** @var \Drupal\views\ViewExecutable $view */
+    $view = $form['output'][0]['#view'];
+    $actionExist = array_search('node_download_documents_action', array_column($view->field['views_bulk_operations_bulk_form']->options['selected_actions'],'action_id'));
+    if (!is_int($actionExist)) {
+      return;
+    }
+    $form['header']['views_bulk_operations_bulk_form']['actions'][0]['#ajax']['callback'] = '_drupal_document_node_download_documents_action';
+    $form['#attached']['library'][] = 'drupal_document/documents_form';
+    // Class used to count how many documents are selected.
+    $form['#attributes']['class'][] = 'documents-bulk-form';
+    // Button to clear the checked items.
+    $form['header']['views_bulk_operations_bulk_form']['actions']['clear'] = [
+      '#type' => 'link',
+      '#url' => Url::fromUserInput('#'),
+      '#title' => t('clear'),
+      '#attributes' => [
+        'class' => ['download-documents-clear-button', 'hidden'],
+      ],
+      '#weight' => -100,
+    ];
+    // Changes for a specific view.
+    if (strpos($form_id, 'views_form_index_documents_event_documents') === 0) {
+      $form['header']['views_bulk_operations_bulk_form']['actions'][0]['#value'] = new TranslatableMarkup('No documents selected');
+      $form['header']['views_bulk_operations_bulk_form']['actions'][0]['#attributes']['disabled'] = 'disabled';
+      $form['actions']['submit']['#value'] = new TranslatableMarkup('No documents selected');
+      $form['actions']['submit']['#attributes']['disabled'] = 'disabled';
+    }
+  }
+}
+
+/**
+ * Ajax callback to open a modal with files from all selected ids.
+ */
+function _drupal_document_node_download_documents_action(&$form, FormStateInterface $form_state) {
+  $encodedIds = $form_state->getUserInput()['views_bulk_operations_bulk_form'];
+  if ($encodedIds) {
+    $ids = [];
+    /** @var \Drupal\drupal_document\Services\DocumentsBulkManager $bulkManager */
+    $bulkManager = \Drupal::service('document.bulk_manager');
+    foreach (array_filter($form_state->getUserInput()['views_bulk_operations_bulk_form']) as $hash) {
+      $entity = $bulkManager->loadEntityFromBulkFormKey($hash);
+      $ids[] =  $entity->id();
+    }
+
+    $form = \Drupal::formBuilder()->getForm(DownloadDocumentsForm::class, $ids, 'field_files');
+    $response = new AjaxResponse();
+    $response->addCommand(new OpenModalDialogCommand(NULL, $form, [
+      'height' => 600,
+      'width' => 900,
+      'dialogClass' => 'no-titlebar no-close',
+    ]));
+
+    return $response;
   }
 }

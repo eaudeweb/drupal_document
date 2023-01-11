@@ -7,7 +7,6 @@ use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
-use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\file\FileInterface;

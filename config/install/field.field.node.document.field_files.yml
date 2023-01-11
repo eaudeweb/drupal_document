@@ -5,22 +5,22 @@ dependencies:
     - field.storage.node.field_files
     - node.type.document
   module:
-    - drupal_document
+    - file
 id: node.document.field_files
 field_name: field_files
 entity_type: node
 bundle: document
 label: Files
 description: ''
-required: true
-translatable: true
+required: false
+translatable: false
 default_value: {  }
 default_value_callback: ''
 settings:
-  file_directory: documents
-  file_extensions: 'pdf doc docx xlsx'
-  max_filesize: ''
-  description_field: 1
   handler: 'default:file'
   handler_settings: {  }
-field_type: file_language
+  file_directory: documents
+  file_extensions: 'txt pdf doc docx xls xlsx'
+  max_filesize: ''
+  description_field: true
+field_type: file

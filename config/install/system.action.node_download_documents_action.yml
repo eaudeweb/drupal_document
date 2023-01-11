@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node_download_documents_action
+label: 'Download documents'
+type: node
+plugin: node_download_documents_action
+configuration: {  }

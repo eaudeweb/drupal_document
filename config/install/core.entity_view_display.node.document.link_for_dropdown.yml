@@ -10,19 +10,17 @@ dependencies:
   module:
     - drupal_document
     - user
-third_party_settings: { }
 id: node.document.link_for_dropdown
 targetEntityType: node
 bundle: document
 mode: link_for_dropdown
 content:
   field_files:
-    type: file_with_language_formatter
+    type: file_download_formatter
     label: hidden
     settings:
-      use_description_as_link_text: '1'
-      suppress_language: '1'
-    third_party_settings: { }
+      use_description_as_link_text: true
+    third_party_settings: {  }
     weight: 0
     region: content
 hidden:

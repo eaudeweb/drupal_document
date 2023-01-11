@@ -1,0 +1,5 @@
+# Schema for the configuration files of the drupal_document module.
+
+action.configuration.node_download_documents_action:
+  type: node_download_documents_action
+  label: 'Download documents'

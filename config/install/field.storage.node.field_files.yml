@@ -4,18 +4,16 @@ dependencies:
   module:
     - file
     - node
-    - drupal_document
 id: node.field_files
 field_name: field_files
 entity_type: node
-type: file_language
+type: file
 settings:
-  display_field: 1
-  display_default: 1
-  uri_scheme: public
-  language: ''
   target_type: file
-module: drupal_document
+  display_field: true
+  display_default: true
+  uri_scheme: public
+module: file
 locked: false
 cardinality: -1
 translatable: true
