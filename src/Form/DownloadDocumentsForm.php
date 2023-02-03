@@ -68,7 +68,7 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
    * @inheritDoc
    */
   public function getFormId() {
-    return 'download_documents.form';
+    return 'drupal_document_download_form';
   }
 
   /**
