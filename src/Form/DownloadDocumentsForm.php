@@ -16,7 +16,7 @@ use Drupal\drupal_document\Services\DocumentManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Form to download documents.
  */
 class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterface {
 
@@ -47,7 +47,7 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
   protected $documentManager;
 
   /**
-   * @inheritDoc
+   * {@inheritdoc}
    */
   public function __construct(EntityTypeManagerInterface $entityTypeManager, DocumentManager $documentManager) {
     $this->entityTypeManager = $entityTypeManager;
@@ -55,7 +55,7 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
   }
 
   /**
-   * @inheritDoc
+   * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
     return new static(
@@ -65,14 +65,14 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
   }
 
   /**
-   * @inheritDoc
+   * {@inheritdoc}
    */
   public function getFormId() {
     return 'drupal_document_download_form';
   }
 
   /**
-   * @inheritDoc
+   * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, $entityIds = NULL, $fieldName = NULL) {
     $form['#prefix'] = '<div id="download-documents-modal">';
@@ -138,7 +138,7 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
     if (empty($languageOptions)) {
       $form['warning_messages'] = [
         '#type' => 'container',
-        '#markup' => $this->t('Couldn\'t find any file to download!'),
+        '#markup' => $this->t("Couldn't find any file to download!"),
         '#attributes' => [
           'class' => ['alert alert-danger'],
         ],
@@ -221,8 +221,10 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
    * Returns an array of filtered files.
    *
    * @param \Drupal\Core\Form\FormStateInterface $formState
+   *   The current state of the form.
    *
    * @return array
+   *   The array with urls.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException

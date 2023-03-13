@@ -61,8 +61,7 @@ class FileMultiLanguageWidget extends FileWidget {
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   Entity type manager.
    */
-  public function __construct($plugin_id, $pluginDefinition, FieldDefinitionInterface $fieldDefinition, array $settings, array $thirdPartySettings,
-                              ElementInfoManagerInterface $elementInfo, LanguageManagerInterface $languageManager, EntityTypeManagerInterface $entityTypeManager) {
+  public function __construct($plugin_id, $pluginDefinition, FieldDefinitionInterface $fieldDefinition, array $settings, array $thirdPartySettings, ElementInfoManagerInterface $elementInfo, LanguageManagerInterface $languageManager, EntityTypeManagerInterface $entityTypeManager) {
     parent::__construct($plugin_id, $pluginDefinition, $fieldDefinition, $settings, $thirdPartySettings, $elementInfo);
     $this->entityTypeManager = $entityTypeManager;
     $this->languageManager = $languageManager;
@@ -96,6 +95,7 @@ class FileMultiLanguageWidget extends FileWidget {
 
     /** @var \Drupal\Core\Entity\ContentEntityBase $entity */
     $entity = $items->getEntity();
+    $elements = [];
     $elements['#type'] = 'details';
     $elements['#open'] = TRUE;
     $elements['#title'] = $this->fieldDefinition->getLabel();
@@ -201,7 +201,10 @@ class FileMultiLanguageWidget extends FileWidget {
    *   full form structure, or a sub-element of a larger form.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
+   *
    * @see WidgetBase::extractFormValues()
+   *
+   * @SuppressWarnings(PHPMD.ShortVariable)
    */
   public function extractFormValuesMultiLanguage(FieldItemListInterface $items, array $form, FormStateInterface $form_state) {
     $fieldName = $this->fieldDefinition->getName();

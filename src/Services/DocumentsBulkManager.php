@@ -5,6 +5,9 @@ namespace Drupal\drupal_document\Services;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\TranslatableInterface;
 
+/**
+ * Defines an actions-based bulk operation form element.
+ */
 class DocumentsBulkManager {
 
   /**
@@ -17,7 +20,7 @@ class DocumentsBulkManager {
   /**
    * Constructs a new DocumentsBulkManager object.
    *
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager.
    */
   public function __construct(EntityTypeManagerInterface $entityTypeManager) {
@@ -33,6 +36,8 @@ class DocumentsBulkManager {
    * @param string $encodedKey
    *   The bulk form key representing the entity's id, language and revision (if
    *   applicable) as one string.
+   * @param bool $isSearchApi
+   *   Flag to indicate bulk type.
    *
    * @return \Drupal\Core\Entity\EntityInterface
    *   The entity loaded in the state (language, optionally revision) specified
@@ -44,12 +49,14 @@ class DocumentsBulkManager {
    *   Thrown if the storage handler couldn't be loaded.
    *
    * @see SearchApiBulkForm::loadEntityFromBulkFormKey()
+   *
+   * @SuppressWarnings(PHPMD.ShortVariable)
    */
   public function loadEntityFromBulkFormKey($encodedKey, bool $isSearchApi = TRUE) {
     $key = base64_decode($encodedKey);
     $keyParts = json_decode($key);
 
-    [$revisionId, $langcode, $entityTypeId, $id] = ($isSearchApi) ? $this->searchApiBulkForm($keyParts): $this->bulkForm($keyParts);
+    [$revisionId, $langcode, $entityTypeId, $id] = ($isSearchApi) ? $this->searchApiBulkForm($keyParts) : $this->bulkForm($keyParts);
 
     // Load the entity or a specific revision depending on the given key.
     $storage = $this->entityTypeManager->getStorage($entityTypeId);
@@ -72,6 +79,8 @@ class DocumentsBulkManager {
    * @return array
    *   The bulk form key, representing the entity's id, language and
    *   revision (if applicable) as variables.
+   *
+   * @SuppressWarnings(PHPMD.ShortVariable)
    */
   private function bulkForm(array $keyParts) {
     // If there are 3 items, vid will be last.
@@ -93,6 +102,8 @@ class DocumentsBulkManager {
    * @return array
    *   The bulk form key, representing the entity's id, language and
    *   revision (if applicable) as variables.
+   *
+   * @SuppressWarnings(PHPMD.ShortVariable)
    */
   private function searchApiBulkForm(array $keyParts) {
     // If there are 4 items, the revision ID  will be last.

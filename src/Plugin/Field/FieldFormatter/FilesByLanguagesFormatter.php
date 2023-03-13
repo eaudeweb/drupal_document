@@ -23,4 +23,5 @@ class FilesByLanguagesFormatter extends FilesByLanguagesFormatterBase {
   public function viewElements(FieldItemListInterface $items, $langcode) {
     return parent::viewElements($items, $langcode);
   }
+
 }

@@ -24,11 +24,11 @@ function drupal_document_theme($existing, $type, $theme, $path) {
       'variables' => ['items' => NULL, 'object' => NULL, 'attributes' => []],
     ],
     'files_group_by_language' => [
-        'template' => 'files-group-by-language',
-        'variables' => [
-            'rows' => [],
-            'current_language' => [],
-        ],
+      'template' => 'files-group-by-language',
+      'variables' => [
+        'rows' => [],
+        'current_language' => [],
+      ],
     ],
     'download_modal' => [
       'template' => 'download-modal',
@@ -81,41 +81,51 @@ function drupal_document_form_alter(&$form, FormStateInterface $form_state, $for
   $actionExist = FALSE;
   $bulkFormId = isset($form['views_bulk_operations_bulk_form']) ?
     'views_bulk_operations_bulk_form' : (isset($form['node_bulk_form']) ? 'node_bulk_form' : NULL);
-  if (isset($form['views_bulk_operations_bulk_form'])) {
-    $actionExist = array_search('node_download_documents_action', array_column($form['output'][0]['#view']->field['views_bulk_operations_bulk_form']->options['selected_actions'],'action_id'));
-    $form['header']['views_bulk_operations_bulk_form']['actions'][0]['#ajax']['callback'] = '_drupal_document_node_download_documents_action';
-  }
-  if (isset($form['node_bulk_form'])) {
-    $actionExist = array_search('node_download_documents_action', $form['output'][0]['#view']->field['node_bulk_form']->options['selected_actions']);
-    $form['header']['node_bulk_form']['actions']['submit']['#ajax']['callback'] = '_drupal_document_node_download_documents_action';
-  }
-  if ($bulkFormId && is_int($actionExist)) {
-    $form['#attached']['library'][] = 'drupal_document/documents_form';
-    // Class used to count how many documents are selected.
-    $form['#attributes']['class'][] = 'documents-bulk-form';
-    // Button to clear the checked items.
-    $form['header']['node_bulk_form']['actions']['clear'] = [
-      '#type' => 'link',
-      '#url' => Url::fromUserInput('#'),
-      '#title' => t('clear'),
-      '#attributes' => [
-        'class' => ['download-documents-clear-button', 'hidden'],
-      ],
-      '#weight' => -100,
-    ];
-    // Changes for a specific view.
-    if (strpos($form_id, 'views_form_index_documents_event_documents') === 0
-      || strpos($form_id, 'views_form_paragraphs_grouped_documents') === 0) {
-      $form['actions']['submit']['#value'] = new TranslatableMarkup('No documents selected');
-      $form['actions']['submit']['#attributes']['disabled'] = 'disabled';
-      if ($bulkFormId == 'node_bulk_form') {
-        $form['header'][$bulkFormId]['actions']['submit']['#value'] = new TranslatableMarkup('No documents selected');
-        $form['header'][$bulkFormId]['actions']['submit']['#attributes']['disabled'] = 'disabled';
+  switch ($bulkFormId) {
+    case 'views_bulk_operations_bulk_form':
+      $actionExist = array_search('node_download_documents_action', array_column($form['output'][0]['#view']->field['views_bulk_operations_bulk_form']->options['selected_actions'], 'action_id'));
+      if (!is_int($actionExist)) {
         return;
       }
-      $form['header'][$bulkFormId]['actions'][0]['#value'] = new TranslatableMarkup('No documents selected');
-      $form['header'][$bulkFormId]['actions'][0]['#attributes']['disabled'] = 'disabled';
+      $form['header'][$bulkFormId]['actions'][0]['#ajax']['callback'] = '_drupal_document_node_download_documents_action';
+      break;
+
+    case 'node_bulk_form':
+      $actionExist = array_search('node_download_documents_action', $form['output'][0]['#view']->field['node_bulk_form']->options['selected_actions']);
+      if (!is_int($actionExist)) {
+        return;
+      }
+      $form['header'][$bulkFormId]['actions']['submit']['#ajax']['callback'] = '_drupal_document_node_download_documents_action';
+      break;
+
+    default:
+      return;
+  }
+  $form['#attached']['library'][] = 'drupal_document/documents_form';
+  // Class used to count how many documents are selected.
+  $form['#attributes']['class'][] = 'documents-bulk-form';
+  // Button to clear the checked items.
+  $form['header']['node_bulk_form']['actions']['clear'] = [
+    '#type' => 'link',
+    '#url' => Url::fromUserInput('#'),
+    '#title' => t('clear'),
+    '#attributes' => [
+      'class' => ['download-documents-clear-button', 'hidden'],
+    ],
+    '#weight' => -100,
+  ];
+  // Changes for a specific view.
+  if (strpos($form_id, 'views_form_index_documents_event_documents') === 0
+    || strpos($form_id, 'views_form_paragraphs_grouped_documents') === 0) {
+    $form['actions']['submit']['#value'] = new TranslatableMarkup('No documents selected');
+    $form['actions']['submit']['#attributes']['disabled'] = 'disabled';
+    if ($bulkFormId == 'node_bulk_form') {
+      $form['header'][$bulkFormId]['actions']['submit']['#value'] = new TranslatableMarkup('No documents selected');
+      $form['header'][$bulkFormId]['actions']['submit']['#attributes']['disabled'] = 'disabled';
+      return;
     }
+    $form['header'][$bulkFormId]['actions'][0]['#value'] = new TranslatableMarkup('No documents selected');
+    $form['header'][$bulkFormId]['actions'][0]['#attributes']['disabled'] = 'disabled';
   }
 }
 
@@ -132,7 +142,7 @@ function _drupal_document_node_download_documents_action(&$form, FormStateInterf
     $bulkManager = \Drupal::service('document.bulk_manager');
     foreach (array_filter($form_state->getUserInput()[$id]) as $hash) {
       $entity = $bulkManager->loadEntityFromBulkFormKey($hash, $isSearchApi);
-      $ids[] =  $entity->id();
+      $ids[] = $entity->id();
     }
 
     $form = \Drupal::formBuilder()->getForm(DownloadDocumentsForm::class, $ids, 'field_files');

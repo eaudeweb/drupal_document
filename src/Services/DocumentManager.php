@@ -13,7 +13,7 @@ use Drupal\file\FileInterface;
 use Drupal\node\Entity\Node;
 
 /**
- * Service DocumentManager.
+ * Service for DocumentManager.
  */
 class DocumentManager {
 
@@ -79,8 +79,7 @@ class DocumentManager {
   /**
    * Constructs a new DocumentManager object.
    */
-  public function __construct(CurrentRouteMatch $currentRouteMatch, EntityTypeManagerInterface $entityTypeManager, ModuleExtensionList $extensionListModule,
-                              FileUrlGeneratorInterface $fileUrlGenerator, FileSystemInterface $fileSystem, LanguageManagerInterface $languageManager) {
+  public function __construct(CurrentRouteMatch $currentRouteMatch, EntityTypeManagerInterface $entityTypeManager, ModuleExtensionList $extensionListModule, FileUrlGeneratorInterface $fileUrlGenerator, FileSystemInterface $fileSystem, LanguageManagerInterface $languageManager) {
     $this->currentRouteMatch = $currentRouteMatch;
     $this->entityTypeManager = $entityTypeManager;
     $this->fileUrlGenerator = $fileUrlGenerator;
@@ -96,7 +95,8 @@ class DocumentManager {
    *   The file entity.
    *
    * @return string|null
-   *   The file type (pdf, text, document, presentation, spreadsheet, video, image).
+   *   The file type (pdf, text, document, presentation, spreadsheet, video,
+   *   image).
    */
   public function getFileType(FileInterface $file) {
     return $this->getUriType($file->getFileUri());
@@ -137,9 +137,11 @@ class DocumentManager {
    * Returns the file type based on uri extension.
    *
    * @param string $uri
+   *   The URI to check.
    *
    * @return string|null
-   *   The file type (pdf, text, document, presentation, spreadsheet, video, image).
+   *   The file type (pdf, text, document, presentation, spreadsheet, video,
+   *   image).
    */
   public function getUriType(string $uri) {
     $extensionMapping = [
@@ -191,8 +193,10 @@ class DocumentManager {
    * If is given only a files, open in a new tab.
    *
    * @param array $url
+   *   URL to find the file.
    *
    * @return string
+   *   The URI of the file.
    */
   public function downloadFile(array $url) {
     $url = reset($url);
@@ -204,12 +208,16 @@ class DocumentManager {
   }
 
   /**
+   * Archive files.
+   *
    * Given a list of files, create an archive of those files and saves it as a
    * temporary file.
    *
    * @param array $filesUrls
+   *   An array of urls.
    *
    * @return string
+   *   URL to the zip file.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
@@ -288,7 +296,7 @@ class DocumentManager {
   }
 
   /**
-   * @return string[]
+   * {@inheritdoc}
    */
   public function documentIconsPathInfo() {
     $iconsPath = sprintf('/%s/images/icons', $this->moduleExtensionList->getPath('drupal_document'));

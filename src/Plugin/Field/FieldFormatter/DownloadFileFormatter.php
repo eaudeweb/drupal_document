@@ -32,6 +32,7 @@ class DownloadFileFormatter extends GenericFileFormatter implements ContainerFac
 
     return $settings;
   }
+
   /**
    * {@inheritdoc}
    */
@@ -60,7 +61,7 @@ class DownloadFileFormatter extends GenericFileFormatter implements ContainerFac
         '#attached' => [
           'library' => [
             'core/drupal.dialog.ajax',
-          ]
+          ],
         ],
       ],
     ];

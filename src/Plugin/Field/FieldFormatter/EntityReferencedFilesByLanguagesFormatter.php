@@ -6,7 +6,7 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 
 /**
- * Plugin implementation of the 'entity_reference_files_group_by_language' formatter.
+ * Plugin implementation for 'entity_reference_files_group_by_language'.
  *
  * @FieldFormatter(
  *   id = "entity_reference_files_group_by_language",
@@ -33,4 +33,5 @@ class EntityReferencedFilesByLanguagesFormatter extends FilesByLanguagesFormatte
     // media items.
     return ($field_definition->getFieldStorageDefinition()->getSetting('target_type') == 'media');
   }
+
 }

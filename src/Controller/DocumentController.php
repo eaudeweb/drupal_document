@@ -43,7 +43,7 @@ class DocumentController extends ControllerBase implements ContainerInjectionInt
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function modal(Node $node, string $field_name = NULL) {
     $form = $this->formBuilder->getForm(DownloadDocumentsForm::class, [$node->id()], $field_name);

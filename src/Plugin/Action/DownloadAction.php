@@ -50,6 +50,9 @@ class DownloadAction extends ActionBase implements ContainerFactoryPluginInterfa
     parent::__construct($configuration, $pluginId, $pluginDefinition, $entityTypeManager);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container, array $configuration, $pluginId, $pluginDefinition) {
     return new static(
       $configuration,
@@ -77,4 +80,5 @@ class DownloadAction extends ActionBase implements ContainerFactoryPluginInterfa
   public function access($object, AccountInterface $account = NULL, $return_as_object = FALSE) {
     return $return_as_object ? AccessResult::allowed() : TRUE;
   }
+
 }

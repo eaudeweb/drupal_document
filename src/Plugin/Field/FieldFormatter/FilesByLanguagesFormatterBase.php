@@ -16,7 +16,6 @@ use Drupal\file\Entity\File;
 use Drupal\media\Entity\Media;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-
 /**
  * Base class for Files by Languages formatters.
  */
@@ -67,15 +66,14 @@ class FilesByLanguagesFormatterBase extends EntityReferenceFormatterBase {
    *   The view mode.
    * @param array $third_party_settings
    *   Any third party settings.
-   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
    *   The language manager.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   Entity type manager.
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entityRepository
    *   The entity repository service.
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings,
-                              LanguageManagerInterface $languageManager, EntityTypeManagerInterface $entityTypeManager, EntityRepositoryInterface $entityRepository) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, LanguageManagerInterface $languageManager, EntityTypeManagerInterface $entityTypeManager, EntityRepositoryInterface $entityRepository) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
     $this->languageManager = $languageManager;
     $this->entityTypeManager = $entityTypeManager;
@@ -134,7 +132,7 @@ class FilesByLanguagesFormatterBase extends EntityReferenceFormatterBase {
    * @param string $langcode
    *   The language that should be used to render the field.
    */
-  public function getLanguageElements(&$elements, FieldItemListInterface $items, string $langcode) {
+  public function getLanguageElements(array &$elements, FieldItemListInterface $items, string $langcode) {
     $entity = $items->getEntity();
     if ($entity->hasTranslation($langcode)) {
       $translation = $entity->getTranslation($langcode);

@@ -10,6 +10,8 @@ use Drupal\Core\Ajax\CommandInterface;
 class DownloadCommand implements CommandInterface {
 
   /**
+   * The path of the file.
+   *
    * @var string
    */
   protected $filePath;
