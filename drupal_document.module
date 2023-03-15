@@ -78,7 +78,6 @@ function drupal_document_search_api_index_items_alter(IndexInterface $index, arr
  * Implements hook_form_alter().
  */
 function drupal_document_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  $actionExist = FALSE;
   $bulkFormId = isset($form['views_bulk_operations_bulk_form']) ?
     'views_bulk_operations_bulk_form' : (isset($form['node_bulk_form']) ? 'node_bulk_form' : NULL);
   switch ($bulkFormId) {
@@ -87,7 +86,14 @@ function drupal_document_form_alter(&$form, FormStateInterface $form_state, $for
       if (!is_int($actionExist)) {
         return;
       }
-      $form['header'][$bulkFormId]['actions'][0]['#ajax']['callback'] = '_drupal_document_node_download_documents_action';
+      $actions = array_keys($form['output'][0]['#view']->field['views_bulk_operations_bulk_form']->options['selected_actions']);
+      $key = $actions[$actionExist];
+      $form['header'][$bulkFormId]['actions'][$key]['#ajax']['callback'] = '_drupal_document_node_download_documents_action';
+      $form['actions'][$key]['#ajax']['callback'] = '_drupal_document_node_download_documents_action';
+      $form['header'][$bulkFormId]['actions'][$key]['#value'] = new TranslatableMarkup('No documents selected');
+      $form['header'][$bulkFormId]['actions'][$key]['#attributes']['disabled'] = 'disabled';
+      $form['actions'][$key]['#value'] = new TranslatableMarkup('No documents selected');
+      $form['actions'][$key]['#attributes']['disabled'] = 'disabled';
       break;
 
     case 'node_bulk_form':
@@ -96,6 +102,11 @@ function drupal_document_form_alter(&$form, FormStateInterface $form_state, $for
         return;
       }
       $form['header'][$bulkFormId]['actions']['submit']['#ajax']['callback'] = '_drupal_document_node_download_documents_action';
+      $form['actions']['submit']['#ajax']['callback'] = '_drupal_document_node_download_documents_action';
+      $form['header'][$bulkFormId]['actions']['submit']['#value'] = new TranslatableMarkup('No documents selected');
+      $form['header'][$bulkFormId]['actions']['submit']['#attributes']['disabled'] = 'disabled';
+      $form['actions']['submit']['#value'] = new TranslatableMarkup('No documents selected');
+      $form['actions']['submit']['#attributes']['disabled'] = 'disabled';
       break;
 
     default:
@@ -114,19 +125,6 @@ function drupal_document_form_alter(&$form, FormStateInterface $form_state, $for
     ],
     '#weight' => -100,
   ];
-  // Changes for a specific view.
-  if (strpos($form_id, 'views_form_index_documents_event_documents') === 0
-    || strpos($form_id, 'views_form_paragraphs_grouped_documents') === 0) {
-    $form['actions']['submit']['#value'] = new TranslatableMarkup('No documents selected');
-    $form['actions']['submit']['#attributes']['disabled'] = 'disabled';
-    if ($bulkFormId == 'node_bulk_form') {
-      $form['header'][$bulkFormId]['actions']['submit']['#value'] = new TranslatableMarkup('No documents selected');
-      $form['header'][$bulkFormId]['actions']['submit']['#attributes']['disabled'] = 'disabled';
-      return;
-    }
-    $form['header'][$bulkFormId]['actions'][0]['#value'] = new TranslatableMarkup('No documents selected');
-    $form['header'][$bulkFormId]['actions'][0]['#attributes']['disabled'] = 'disabled';
-  }
 }
 
 /**
