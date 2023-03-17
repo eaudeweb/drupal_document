@@ -8,6 +8,7 @@ use Drupal\Core\Ajax\PrependCommand;
 use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
@@ -47,11 +48,19 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
   protected $documentManager;
 
   /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(EntityTypeManagerInterface $entityTypeManager, DocumentManager $documentManager) {
+  public function __construct(EntityTypeManagerInterface $entityTypeManager, DocumentManager $documentManager, ModuleHandlerInterface $moduleHandler) {
     $this->entityTypeManager = $entityTypeManager;
     $this->documentManager = $documentManager;
+    $this->moduleHandler = $moduleHandler;
   }
 
   /**
@@ -60,7 +69,8 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
-      $container->get('document.manager')
+      $container->get('document.manager'),
+      $container->get('module_handler'),
     );
   }
 
@@ -96,7 +106,9 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
     }
     $availableFormats = array_unique($availableFormats);
     $availableLanguages = array_unique($availableLanguages);
-
+    $linksFieldName = 'field_external_links';
+    // Allow other modules to alter the machine name for external links.
+    $this->alterExternalLinkField($linksFieldName);
     $form['status_message'] = [
       '#type' => 'html_tag',
       '#tag' => 'div',
@@ -135,6 +147,19 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
       '#description' => $this->t('Select at least one language'),
       '#access' => !empty($this->entityIds) && !empty($languageOptions),
     ];
+    if ($linksFieldName) {
+      $links = $this->documentManager->getExternalLinks($this->entityIds, $linksFieldName);
+      $form['external_links'] = [
+        '#theme' => 'item_list',
+        '#items' => $links,
+        '#title' => $this->t('See external documents'),
+        '#type' => 'ul',
+        '#context' => ['list_style' => 'comma-list'],
+        '#attributes' => ['class' => ['open-website']],
+        '#wrapper_attributes' => ['class' => 'container'],
+        '#access' => !empty($this->entityIds) && !empty($links),
+      ];
+    }
     if (empty($languageOptions)) {
       $form['warning_messages'] = [
         '#type' => 'container',
@@ -261,5 +286,12 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  public function alterExternalLinkField(string &$linksFieldName = 'field_external_links') {
+    $this->moduleHandler->alter('field_external_links', $linksFieldName);
+  }
 
 }

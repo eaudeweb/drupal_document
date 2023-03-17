@@ -9,6 +9,7 @@ use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Url;
 use Drupal\file\FileInterface;
 use Drupal\node\Entity\Node;
 
@@ -293,6 +294,31 @@ class DocumentManager {
     return array_map(function (LanguageInterface $language) {
       return $language->getId();
     }, $languages);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getExternalLinks(array $ids, string $linksFieldName) {
+    $items = [];
+    $entities = $this->entityTypeManager->getStorage('node')->loadMultiple($ids);
+    foreach ($entities as $entity) {
+      $items = array_merge($items, $entity->get($linksFieldName)->getValue());
+    }
+    foreach ($items as &$item) {
+      $item['options']['attributes']['class'][] = 'btn';
+      $item['options']['attributes']['target'] = '_blank';
+      $url = Url::fromUri($item['uri'], $item['options']);
+      $link_title = !empty($item['title']) ? $item['title'] : 'Website';
+      $item = [
+        '#type' => 'link',
+        '#title' => $link_title,
+        '#url' => $url,
+        '#options' => $url->getOptions(),
+      ];
+    }
+
+    return $items;
   }
 
   /**
