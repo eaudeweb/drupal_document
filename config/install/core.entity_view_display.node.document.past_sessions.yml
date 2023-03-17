@@ -5,6 +5,7 @@ dependencies:
     - core.entity_view_mode.node.past_sessions
     - field.field.node.document.body
     - field.field.node.document.field_document_type
+    - field.field.node.document.field_external_links
     - field.field.node.document.field_files
     - node.type.document
   module:
@@ -37,5 +38,6 @@ content:
     region: content
 hidden:
   body: true
+  field_external_links: true
   langcode: true
   links: true

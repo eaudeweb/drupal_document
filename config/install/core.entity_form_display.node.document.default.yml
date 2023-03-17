@@ -4,11 +4,13 @@ dependencies:
   config:
     - field.field.node.document.body
     - field.field.node.document.field_document_type
+    - field.field.node.document.field_external_links
     - field.field.node.document.field_files
     - node.type.document
   module:
     - drupal_document
     - path
+    - link
 id: node.document.default
 targetEntityType: node
 bundle: document
@@ -29,6 +31,14 @@ content:
       match_limit: 10
       size: 60
       placeholder: ''
+    third_party_settings: {  }
+  field_external_links:
+    type: link_default
+    weight: 26
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
     third_party_settings: {  }
   field_files:
     type: file_multi_language
