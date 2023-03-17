@@ -147,8 +147,8 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
       '#description' => $this->t('Select at least one language'),
       '#access' => !empty($this->entityIds) && !empty($languageOptions),
     ];
-    if ($linksFieldName) {
-      $links = $this->documentManager->getExternalLinks($this->entityIds, $linksFieldName);
+    $links = $this->documentManager->getExternalLinks($this->entityIds, $linksFieldName);
+    if ($links) {
       $form['external_links'] = [
         '#theme' => 'item_list',
         '#items' => $links,
@@ -160,7 +160,7 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
         '#access' => !empty($this->entityIds) && !empty($links),
       ];
     }
-    if (empty($languageOptions)) {
+    if (empty($languageOptions) && empty($links)) {
       $form['warning_messages'] = [
         '#type' => 'container',
         '#markup' => $this->t("Couldn't find any file to download!"),
