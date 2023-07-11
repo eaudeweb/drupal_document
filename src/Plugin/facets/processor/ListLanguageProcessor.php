@@ -3,10 +3,10 @@
 namespace Drupal\drupal_document\Plugin\facets\processor;
 
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\drupal_document\Services\FileLanguageManager;
 use Drupal\facets\FacetInterface;
 use Drupal\facets\Processor\BuildProcessorInterface;
 use Drupal\facets\Processor\ProcessorPluginBase;
-use Drupal\drupal_document\Services\FileLanguageManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

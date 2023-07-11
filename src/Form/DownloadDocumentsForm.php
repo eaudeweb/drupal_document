@@ -89,23 +89,8 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
     $form['#suffix'] = '</div>';
     $this->fieldName = $fieldName ?? $form_state->getUserInput()['entity_field_name'];
     $this->entityIds = $entityIds ?? explode(' ', $form_state->getUserInput()['entity_ids']);
-    $availableLanguages = $availableFormats = [];
     $entities = $this->entityTypeManager->getStorage('node')->loadMultiple($this->entityIds);
-    foreach ($entities as $entity) {
-      $langcodes = array_keys($entity->getTranslationLanguages());
-      foreach ($langcodes as $langcode) {
-        $urls = $this->documentManager->getFilesByLanguage($entity, $langcode, $this->fieldName);
-        if (empty($urls)) {
-          continue;
-        }
-        $availableLanguages[] = $langcode;
-        foreach ($urls as $url) {
-          $availableFormats[] = $this->documentManager->getUriType($url);
-        }
-      }
-    }
-    $availableFormats = array_unique($availableFormats);
-    $availableLanguages = array_unique($availableLanguages);
+    [$availableFormats, $availableLanguages] = $this->documentManager->getOptions($entities, $this->fieldName);
     $linksFieldName = 'field_external_links';
     // Allow other modules to alter the machine name for external links.
     $this->alterExternalLinkField($linksFieldName);
@@ -136,6 +121,9 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
       '#description' => $this->t('Select at least one format'),
       '#access' => !empty($this->entityIds) && !empty($icons),
       '#attributes' => ['class' => ['download-from-formats']],
+      '#default_value' => count($icons) > 1 ? [] : array_keys($icons),
+      '#disabled' => !(count($icons) > 1),
+      '#required_error' => $this->t('Format is required. Select at least one format.'),
     ];
     $languageOptions = $this->documentManager->getFilteredLanguages($availableLanguages);
     $form['language'] = [
@@ -146,6 +134,9 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
       '#required' => TRUE,
       '#description' => $this->t('Select at least one language'),
       '#access' => !empty($this->entityIds) && !empty($languageOptions),
+      '#default_value' => count($languageOptions) > 1 ? [] : array_keys($languageOptions),
+      '#disabled' => !(count($languageOptions) > 1),
+      '#required_error' => $this->t('Language is required. Select at least one language.'),
     ];
     $links = $this->documentManager->getExternalLinks($this->entityIds, $linksFieldName);
     if ($links) {
@@ -169,7 +160,6 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
         ],
       ];
     }
-
     $form['actions']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Download'),
@@ -188,7 +178,6 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
         ],
       ],
     ];
-
     $form['actions']['cancel'] = [
       '#type' => 'submit',
       '#value' => $this->t('Cancel'),
@@ -197,7 +186,6 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
         'onclick' => 'jQuery(".ui-dialog-titlebar-close").click();',
       ],
     ];
-
     $form['actions']['#type'] = 'container';
     $form['actions']['#attributes']['class'][] = 'form-actions';
     $form['#attributes']['class'][] = 'download-form';
@@ -222,18 +210,22 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
   public function ajaxSubmit(array &$form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
     $response->addCommand(new RemoveCommand('.messages__wrapper'));
-    $form['status_messages'] = [
+    $form['status_message'] = [
       '#type' => 'status_messages',
       '#weight' => -1000,
     ];
     if ($form_state->getErrors()) {
-      $response->addCommand(new PrependCommand('#download-documents-header', $form['status_messages']));
+      $response->addCommand(new PrependCommand('#download-documents-header', $form['status_message']));
       return $response;
     }
-    $filesUrls = $this->getSelectedFiles($form_state);
+    $this->preselectDefaultValues($form, $form_state);
+    $formats = array_filter($form_state->getUserInput()['format']);
+    $languages = array_filter($form_state->getUserInput()['language']);
+    $entities = $this->entityTypeManager->getStorage('node')->loadMultiple($this->entityIds);
+    $filesUrls = $this->documentManager->getFilteredFiles($entities, $this->fieldName, $formats, $languages);
     $path = (count($filesUrls) < 2) ? $this->documentManager->downloadFile($filesUrls) : $this->documentManager->archiveFiles($filesUrls);
     if (empty($path)) {
-      $response->addCommand(new PrependCommand('#download-documents-header', $form['status_messages']));
+      $response->addCommand(new PrependCommand('#download-documents-header', $form['status_message']));
       return $response;
     }
     $response->addCommand(new CloseModalDialogCommand());
@@ -243,38 +235,17 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
   }
 
   /**
-   * Returns an array of filtered files.
-   *
-   * @param \Drupal\Core\Form\FormStateInterface $formState
-   *   The current state of the form.
-   *
-   * @return array
-   *   The array with urls.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * {@inheritdoc}
    */
-  protected function getSelectedFiles(FormStateInterface $formState) {
-    $urls = [];
-    $formats = array_filter($formState->getUserInput()['format']);
-    $languages = array_filter($formState->getUserInput()['language']);
-    $entities = $this->entityTypeManager->getStorage('node')->loadMultiple($this->entityIds);
-    foreach ($entities as $entity) {
-      foreach ($languages as $language) {
-        if (!$entity->hasTranslation($language)) {
-          continue;
-        }
-        $urls = array_merge($urls, $this->documentManager->getFilesByLanguage($entity, $language, $this->fieldName));
+  protected function preselectDefaultValues(array &$form, FormStateInterface &$formState) {
+    foreach (['language', 'format'] as $element) {
+      $value = $formState->getValue($element);
+      if (count($value) < 2) {
+        $userInput = $formState->getUserInput();
+        $userInput[$element] = $value;
+        $formState->setUserInput($userInput);
       }
     }
-
-    foreach ($urls as $key => $url) {
-      if (!in_array($this->documentManager->getUriType($url), $formats)) {
-        unset($urls[$key]);
-      }
-    }
-
-    return $urls;
   }
 
   /**

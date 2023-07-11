@@ -6,9 +6,9 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\File\FileUrlGeneratorInterface;
-use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Url;
 use Drupal\file\FileInterface;
 use Drupal\node\Entity\Node;
@@ -267,6 +267,72 @@ class DocumentManager {
     $destination = $this->fileSystem->realpath($this->directory);
 
     return $destination . DIRECTORY_SEPARATOR . $zipFileName;
+  }
+
+  /**
+   * Return formats and languages available for download.
+   *
+   * For a list with selected entities, return all formats and languages
+   * available to download.
+   *
+   * @param array $entities
+   *   An array of Entities.
+   * @param string $fieldName
+   *   The name of the field to get files.
+   *
+   * @return array
+   *   An array with options.
+   */
+  public function getOptions(array $entities, string $fieldName) {
+    $availableLanguages = $availableFormats = [];
+    foreach ($entities as $entity) {
+      $langcodes = array_keys($entity->getTranslationLanguages());
+      foreach ($langcodes as $langcode) {
+        $urls = $this->getFilesByLanguage($entity, $langcode, $fieldName);
+        if (empty($urls)) {
+          continue;
+        }
+        $availableLanguages[] = $langcode;
+        foreach ($urls as $url) {
+          $availableFormats[] = $this->getUriType($url);
+        }
+      }
+    }
+    return [array_unique($availableFormats), array_unique($availableLanguages)];
+  }
+
+  /**
+   * Return a list with urls ready to be downloaded.
+   *
+   * @param array $entities
+   *   An array of Entities.
+   * @param string $fieldName
+   *   The name of the field to get files.
+   * @param array $formats
+   *   An array of selected formats.
+   * @param array $languages
+   *   An array of selected language codes.
+   *
+   * @return array
+   *   An array with URLs.
+   */
+  public function getFilteredFiles(array $entities, string $fieldName, array $formats, array $languages) {
+    $urls = [];
+    foreach ($entities as $entity) {
+      foreach ($languages as $language) {
+        if (!$entity->hasTranslation($language)) {
+          continue;
+        }
+        $urls = array_merge($urls, $this->getFilesByLanguage($entity, $language, $fieldName));
+      }
+    }
+    foreach ($urls as $key => $url) {
+      if (!in_array($this->getUriType($url), $formats)) {
+        unset($urls[$key]);
+      }
+    }
+
+    return $urls;
   }
 
   /**

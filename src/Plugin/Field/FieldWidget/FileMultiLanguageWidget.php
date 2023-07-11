@@ -130,6 +130,8 @@ class FileMultiLanguageWidget extends FileWidget {
 
   /**
    * {@inheritdoc}
+   *
+   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
    */
   public function extractFormValues(FieldItemListInterface $items, array $form, FormStateInterface $form_state) {
     // Rewrite the parent::extractFormValues() from WidgetBase.
@@ -205,6 +207,8 @@ class FileMultiLanguageWidget extends FileWidget {
    * @see WidgetBase::extractFormValues()
    *
    * @SuppressWarnings(PHPMD.ShortVariable)
+   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+   * @SuppressWarnings(PHPMD.NPathComplexity)
    */
   public function extractFormValuesMultiLanguage(FieldItemListInterface $items, array $form, FormStateInterface $form_state) {
     $fieldName = $this->fieldDefinition->getName();

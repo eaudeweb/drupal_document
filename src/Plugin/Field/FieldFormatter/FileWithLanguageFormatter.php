@@ -6,8 +6,8 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\file\Plugin\Field\FieldFormatter\GenericFileFormatter;
 use Drupal\drupal_document\Services\FileLanguageManager;
+use Drupal\file\Plugin\Field\FieldFormatter\GenericFileFormatter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
