@@ -89,8 +89,7 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
     $form['#suffix'] = '</div>';
     $this->fieldName = $fieldName ?? $form_state->getUserInput()['entity_field_name'];
     $this->entityIds = $entityIds ?? explode(' ', $form_state->getUserInput()['entity_ids']);
-    $entities = $this->entityTypeManager->getStorage('node')->loadMultiple($this->entityIds);
-    [$availableFormats, $availableLanguages] = $this->documentManager->getOptions($entities, $this->fieldName);
+    [$availableFormats, $availableLanguages] = $this->documentManager->getOptions($this->entityIds, $this->fieldName);
     $linksFieldName = 'field_external_links';
     // Allow other modules to alter the machine name for external links.
     $this->alterExternalLinkField($linksFieldName);
@@ -222,7 +221,7 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
     $formats = array_filter($form_state->getUserInput()['format']);
     $languages = array_filter($form_state->getUserInput()['language']);
     $entities = $this->entityTypeManager->getStorage('node')->loadMultiple($this->entityIds);
-    $filesUrls = $this->documentManager->getFilteredFiles($entities, $this->fieldName, $formats, $languages);
+    $filesUrls = $this->documentManager->getFilteredFiles(array_keys($entities), $this->fieldName, $formats, $languages);
     $path = (count($filesUrls) < 2) ? $this->documentManager->downloadFile($filesUrls) : $this->documentManager->archiveFiles($filesUrls);
     if (empty($path)) {
       $response->addCommand(new PrependCommand('#download-documents-header', $form['status_message']));

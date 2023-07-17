@@ -2,6 +2,7 @@
 
 namespace Drupal\drupal_document\Services;
 
+use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\Core\File\FileSystemInterface;
@@ -11,7 +12,6 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Url;
 use Drupal\file\FileInterface;
-use Drupal\node\Entity\Node;
 
 /**
  * Service for DocumentManager.
@@ -34,6 +34,13 @@ class DocumentManager {
    * @var \Drupal\Core\Routing\CurrentRouteMatch
    */
   protected $currentRouteMatch;
+
+  /**
+   * The database connection.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $database;
 
   /**
    * The entity type manager.
@@ -80,8 +87,9 @@ class DocumentManager {
   /**
    * Constructs a new DocumentManager object.
    */
-  public function __construct(CurrentRouteMatch $currentRouteMatch, EntityTypeManagerInterface $entityTypeManager, ModuleExtensionList $extensionListModule, FileUrlGeneratorInterface $fileUrlGenerator, FileSystemInterface $fileSystem, LanguageManagerInterface $languageManager) {
+  public function __construct(CurrentRouteMatch $currentRouteMatch, EntityTypeManagerInterface $entityTypeManager, ModuleExtensionList $extensionListModule, FileUrlGeneratorInterface $fileUrlGenerator, FileSystemInterface $fileSystem, LanguageManagerInterface $languageManager, Connection $database) {
     $this->currentRouteMatch = $currentRouteMatch;
+    $this->database = $database;
     $this->entityTypeManager = $entityTypeManager;
     $this->fileUrlGenerator = $fileUrlGenerator;
     $this->fileSystem = $fileSystem;
@@ -101,37 +109,6 @@ class DocumentManager {
    */
   public function getFileType(FileInterface $file) {
     return $this->getUriType($file->getFileUri());
-  }
-
-  /**
-   * Return files for a selected language.
-   *
-   * @param \Drupal\node\Entity\Node $node
-   *   The node entity.
-   * @param string $languageId
-   *   The language id.
-   * @param string $fieldName
-   *   The field where to search.
-   *
-   * @return array
-   *   An array with URLs.
-   */
-  public function getFilesByLanguage(Node $node, string $languageId, string $fieldName) {
-    if (!$node->hasTranslation($languageId)) {
-      return [];
-    }
-    $translation = $node->getTranslation($languageId);
-    $files = $translation->get($fieldName)->referencedEntities();
-
-    $urls = [];
-    foreach ($files as $file) {
-      $fileUri = $file->getFileUri();
-      if (!empty($this->getUriType($fileUri))) {
-        $urls[] = $fileUri;
-      }
-    }
-
-    return $urls;
   }
 
   /**
@@ -275,28 +252,25 @@ class DocumentManager {
    * For a list with selected entities, return all formats and languages
    * available to download.
    *
-   * @param array $entities
-   *   An array of Entities.
+   * @param array $nids
+   *   An array of node IDs.
    * @param string $fieldName
    *   The name of the field to get files.
    *
    * @return array
    *   An array with options.
    */
-  public function getOptions(array $entities, string $fieldName) {
+  public function getOptions(array $nids, string $fieldName) {
     $availableLanguages = $availableFormats = [];
-    foreach ($entities as $entity) {
-      $langcodes = array_keys($entity->getTranslationLanguages());
-      foreach ($langcodes as $langcode) {
-        $urls = $this->getFilesByLanguage($entity, $langcode, $fieldName);
-        if (empty($urls)) {
-          continue;
-        }
-        $availableLanguages[] = $langcode;
-        foreach ($urls as $url) {
-          $availableFormats[] = $this->getUriType($url);
-        }
-      }
+    $result = $this->database->select("node__{$fieldName}", 'f')
+      ->fields('f', ["{$fieldName}_target_id", 'langcode']);
+    $result->condition('f.entity_id', $nids, 'IN');
+    $results = $result->execute()->fetchAll();
+    $availableLanguages = array_column($results, 'langcode');
+    $fids = array_column($results, "{$fieldName}_target_id");
+    $files = $this->entityTypeManager->getStorage('file')->loadMultiple($fids);
+    foreach ($files as $file) {
+      $availableFormats[] = $this->getUriType($file->getFileUri());
     }
     return [array_unique($availableFormats), array_unique($availableLanguages)];
   }
@@ -304,8 +278,8 @@ class DocumentManager {
   /**
    * Return a list with urls ready to be downloaded.
    *
-   * @param array $entities
-   *   An array of Entities.
+   * @param array $nids
+   *   An array of node IDs.
    * @param string $fieldName
    *   The name of the field to get files.
    * @param array $formats
@@ -316,19 +290,17 @@ class DocumentManager {
    * @return array
    *   An array with URLs.
    */
-  public function getFilteredFiles(array $entities, string $fieldName, array $formats, array $languages) {
+  public function getFilteredFiles(array $nids, string $fieldName, array $formats, array $languages) {
+    $result = $this->database->select("node__{$fieldName}", 'f')->fields('f', ["{$fieldName}_target_id"]);
+    $result->condition('f.entity_id', $nids, 'IN');
+    $result->condition('f.langcode', $languages, 'IN');
+    $fids = $result->execute()->fetchCol();
+    $files = $this->entityTypeManager->getStorage('file')->loadMultiple($fids);
     $urls = [];
-    foreach ($entities as $entity) {
-      foreach ($languages as $language) {
-        if (!$entity->hasTranslation($language)) {
-          continue;
-        }
-        $urls = array_merge($urls, $this->getFilesByLanguage($entity, $language, $fieldName));
-      }
-    }
-    foreach ($urls as $key => $url) {
-      if (!in_array($this->getUriType($url), $formats)) {
-        unset($urls[$key]);
+    foreach ($files as $file) {
+      $url = $file->getFileUri();
+      if (in_array($this->getUriType($url), $formats)) {
+        $urls[] = $url;
       }
     }
 
