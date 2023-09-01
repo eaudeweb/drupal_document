@@ -3,6 +3,7 @@
 namespace Drupal\drupal_document\Services;
 
 use Drupal\Core\Database\Connection;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\Core\File\FileSystemInterface;
@@ -10,6 +11,7 @@ use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
+use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
 use Drupal\file\FileInterface;
 
@@ -168,6 +170,13 @@ class DocumentManager {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getDirectoryRoot() {
+    return Settings::get('drupal_document_directory') ?? 'public://downloads';
+  }
+
+  /**
    * If is given only a files, open in a new tab.
    *
    * @param array $url
@@ -237,12 +246,13 @@ class DocumentManager {
    * {@inheritdoc}
    */
   public function getArchiveFilePath() {
-    $this->directory = 'public://downloads/' . uniqid();
+    $date = new DrupalDateTime('now', 'UTC');
+    $prefix = $date->format('d-m-Y') . '-';
+    $this->directory = $this->getDirectoryRoot() . DIRECTORY_SEPARATOR . uniqid($prefix);
     $zipFileName = 'documents.zip';
 
     $this->fileSystem->prepareDirectory($this->directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
     $destination = $this->fileSystem->realpath($this->directory);
-
     return $destination . DIRECTORY_SEPARATOR . $zipFileName;
   }
 

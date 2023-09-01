@@ -154,3 +154,12 @@ function _drupal_document_node_download_documents_action(&$form, FormStateInterf
     return $response;
   }
 }
+
+/**
+ * Implements hook_cron().
+ */
+function drupal_document_clean_document_cron() {
+  /** @var \Drupal\drupal_document\Services\DocumentCronManager $cronManager */
+  $cronManager = \Drupal::service('document.cron_manager');
+  $cronManager->cleaupOldDirectories();
+}
