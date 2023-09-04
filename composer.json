@@ -20,6 +20,7 @@
         }
     ],
     "require": {
-        "drupal/drupal_utilities": "dev-main"
+        "drupal/drupal_utilities": "dev-main",
+        "drupal/views_bulk_operations": "^4.2"
     }
 }

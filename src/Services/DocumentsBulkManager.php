@@ -4,6 +4,7 @@ namespace Drupal\drupal_document\Services;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\TranslatableInterface;
+use Drupal\views_bulk_operations\Plugin\views\field\ViewsBulkOperationsBulkForm;
 
 /**
  * Defines an actions-based bulk operation form element.
@@ -104,16 +105,16 @@ class DocumentsBulkManager {
    *   revision (if applicable) as variables.
    *
    * @SuppressWarnings(PHPMD.ShortVariable)
+   *
+   * @see ViewsBulkOperationsBulkForm::calculateEntityBulkFormKey()
    */
   private function searchApiBulkForm(array $keyParts) {
-    // If there are 4 items, the revision ID  will be last.
-    $revisionId = (count($keyParts) === 4) ? array_pop($keyParts) : NULL;
-    // Drop first element.
+    // Drop first element (the value of the base field for this view result).
     array_shift($keyParts);
     // The first three items will always be the entity type, langcode and ID.
     [$langcode, $entityTypeId, $id] = $keyParts;
 
-    return [$revisionId, $langcode, $entityTypeId, $id];
+    return [NULL, $langcode, $entityTypeId, $id];
   }
 
 }
