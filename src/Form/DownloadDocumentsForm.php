@@ -121,7 +121,6 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
       '#access' => !empty($this->entityIds) && !empty($icons),
       '#attributes' => ['class' => ['download-from-formats']],
       '#default_value' => count($icons) > 1 ? [] : array_keys($icons),
-      '#disabled' => !(count($icons) > 1),
       '#required_error' => $this->t('Format is required. Select at least one format.'),
     ];
     $languageOptions = $this->documentManager->getFilteredLanguages($availableLanguages);
@@ -134,7 +133,6 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
       '#description' => $this->t('Select at least one language'),
       '#access' => !empty($this->entityIds) && !empty($languageOptions),
       '#default_value' => count($languageOptions) > 1 ? [] : array_keys($languageOptions),
-      '#disabled' => !(count($languageOptions) > 1),
       '#required_error' => $this->t('Language is required. Select at least one language.'),
     ];
     $links = $this->documentManager->getExternalLinks($this->entityIds, $linksFieldName);
