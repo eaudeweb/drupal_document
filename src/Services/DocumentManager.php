@@ -13,6 +13,7 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
+use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 
 /**
@@ -97,20 +98,6 @@ class DocumentManager {
     $this->fileSystem = $fileSystem;
     $this->languageManager = $languageManager;
     $this->moduleExtensionList = $extensionListModule;
-  }
-
-  /**
-   * Returns the file type based on file extension.
-   *
-   * @param \Drupal\file\FileInterface $file
-   *   The file entity.
-   *
-   * @return string|null
-   *   The file type (pdf, text, document, presentation, spreadsheet, video,
-   *   image).
-   */
-  public function getFileType(FileInterface $file) {
-    return $this->getUriType($file->getFileUri());
   }
 
   /**
@@ -280,6 +267,9 @@ class DocumentManager {
     $fids = array_column($results, "{$fieldName}_target_id");
     $files = $this->entityTypeManager->getStorage('file')->loadMultiple($fids);
     foreach ($files as $file) {
+      if (!$file instanceof File) {
+        continue;
+      }
       $availableFormats[] = $this->getUriType($file->getFileUri());
     }
     return [array_unique($availableFormats), array_unique($availableLanguages)];
@@ -308,6 +298,9 @@ class DocumentManager {
     $files = $this->entityTypeManager->getStorage('file')->loadMultiple($fids);
     $urls = [];
     foreach ($files as $file) {
+      if (!$file instanceof File) {
+        continue;
+      }
       $url = $file->getFileUri();
       if (in_array($this->getUriType($url), $formats)) {
         $urls[] = $url;
