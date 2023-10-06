@@ -2,10 +2,7 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_document_type
-    - field.storage.node.field_events
     - node.type.document
-    - taxonomy.vocabulary.document_types
   module:
     - entity_browser
     - node
@@ -206,10 +203,10 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
-        field_document_type:
-          id: field_document_type
-          table: node__field_document_type
-          field: field_document_type
+        field_document_types:
+          id: field_document_types
+          table: node__field_document_types
+          field: field_document_types
           relationship: none
           group_type: group
           admin_label: ''
@@ -706,10 +703,10 @@ display:
             default_group_multiple: {  }
             group_items: {  }
           fields: {  }
-        field_document_type_target_id:
-          id: field_document_type_target_id
-          table: node__field_document_type
-          field: field_document_type_target_id
+        field_document_types_target_id:
+          id: field_document_types_target_id
+          table: node__field_document_types
+          field: field_document_types_target_id
           relationship: none
           group_type: group
           admin_label: ''
@@ -719,11 +716,11 @@ display:
           group: 1
           exposed: true
           expose:
-            operator_id: field_document_type_target_id_op
+            operator_id: field_document_types_target_id_op
             label: Type
             description: ''
             use_operator: false
-            operator: field_document_type_target_id_op
+            operator: field_document_types_target_id_op
             operator_limit_selection: false
             operator_list: {  }
             identifier: document_type
@@ -899,7 +896,7 @@ display:
           columns:
             node_bulk_form: node_bulk_form
             title: title
-            field_document_type: field_document_type
+            field_document_types: field_document_types
             uid: uid
             status: status
             changed: changed
@@ -918,7 +915,7 @@ display:
               separator: ''
               empty_column: false
               responsive: ''
-            field_document_type:
+            field_document_types:
               align: ''
               separator: ''
               empty_column: false
@@ -994,7 +991,7 @@ display:
         - 'user.node_grants:view'
         - user.permissions
       tags:
-        - 'config:field.storage.node.field_document_type'
+        - 'config:field.storage.node.field_document_types'
         - 'config:field.storage.node.field_events'
   documents_page_list:
     id: documents_page_list
@@ -1125,10 +1122,10 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
-        field_document_type:
-          id: field_document_type
-          table: node__field_document_type
-          field: field_document_type
+        field_document_types:
+          id: field_document_types
+          table: node__field_document_types
+          field: field_document_types
           relationship: none
           group_type: group
           admin_label: ''
@@ -1509,10 +1506,10 @@ display:
             group_items: {  }
           fields:
             title: title
-        field_document_type_target_id:
-          id: field_document_type_target_id
-          table: node__field_document_type
-          field: field_document_type_target_id
+        field_document_types_target_id:
+          id: field_document_types_target_id
+          table: node__field_document_types
+          field: field_document_types_target_id
           relationship: none
           group_type: group
           admin_label: ''
@@ -1522,11 +1519,11 @@ display:
           group: 1
           exposed: true
           expose:
-            operator_id: field_document_type_target_id_op
+            operator_id: field_document_types_target_id_op
             label: Type
             description: ''
             use_operator: false
-            operator: field_document_type_target_id_op
+            operator: field_document_types_target_id_op
             operator_limit_selection: false
             operator_list: {  }
             identifier: type
@@ -1745,7 +1742,7 @@ display:
         - 'user.node_grants:view'
         - user.permissions
       tags:
-        - 'config:field.storage.node.field_document_type'
+        - 'config:field.storage.node.field_document_types'
   entity_browser_select_documents:
     id: entity_browser_select_documents
     display_title: 'Entity browser'
@@ -1801,10 +1798,10 @@ display:
             group_items: {  }
           fields:
             title: title
-        field_document_type_target_id:
-          id: field_document_type_target_id
-          table: node__field_document_type
-          field: field_document_type_target_id
+        field_document_types_target_id:
+          id: field_document_types_target_id
+          table: node__field_document_types
+          field: field_document_types_target_id
           relationship: none
           group_type: group
           admin_label: ''
@@ -1814,11 +1811,11 @@ display:
           group: 1
           exposed: true
           expose:
-            operator_id: field_document_type_target_id_op
+            operator_id: field_document_types_target_id_op
             label: Type
             description: ''
             use_operator: false
-            operator: field_document_type_target_id_op
+            operator: field_document_types_target_id_op
             operator_limit_selection: false
             operator_list: {  }
             identifier: document_type
@@ -2000,5 +1997,5 @@ display:
         - 'user.node_grants:view'
         - user.permissions
       tags:
-        - 'config:field.storage.node.field_document_type'
+        - 'config:field.storage.node.field_document_types'
         - 'config:field.storage.node.field_events'

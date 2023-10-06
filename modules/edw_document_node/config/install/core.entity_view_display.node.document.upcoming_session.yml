@@ -4,7 +4,6 @@ dependencies:
   config:
     - core.entity_view_mode.node.upcoming_session
     - field.field.node.document.body
-    - field.field.node.document.field_document_type
     - field.field.node.document.field_external_links
     - field.field.node.document.field_files
     - node.type.document
@@ -20,7 +19,7 @@ targetEntityType: node
 bundle: document
 mode: upcoming_session
 content:
-  field_document_type:
+  field_document_types:
     type: entity_reference_label
     label: hidden
     settings:
@@ -38,6 +37,7 @@ content:
     region: content
 hidden:
   body: true
+  field_document_type: true
   field_external_links: true
   langcode: true
   links: true

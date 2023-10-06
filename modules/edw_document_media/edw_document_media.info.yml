@@ -1,0 +1,11 @@
+name: EDW Document
+description: The Document media type with multiple version of a file, several formats and translations.
+package: Eau de Web
+type: module
+core_version_requirement: ^9.4 || ^10
+dependencies:
+  - drupal:drupal_document
+  - drupal:select2
+  - file_replace:file_replace
+  - file_delete:file_delete
+  - file_to_media:file_to_media

@@ -1,0 +1,38 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_form_mode.media.media_library
+    - field.field.media.document.field_content
+    - field.field.media.document.field_date_time
+    - field.field.media.document.field_document_number
+    - field.field.media.document.field_files
+    - field.field.media.document.field_image
+    - field.field.media.document.field_title
+    - media.type.document
+id: media.document.media_library
+targetEntityType: media
+bundle: document
+mode: media_library
+content:
+  translation:
+    weight: 10
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  created: true
+  field_content: true
+  field_countries: true
+  field_date_time: true
+  field_document_number: true
+  field_document_types: true
+  field_files: true
+  field_image: true
+  field_meetings: true
+  field_title: true
+  langcode: true
+  name: true
+  path: true
+  status: true
+  uid: true

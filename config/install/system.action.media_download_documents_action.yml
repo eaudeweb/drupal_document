@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - media
+id: media_download_documents_action
+label: 'Download documents'
+type: media
+plugin: media_download_documents_action
+configuration: {  }

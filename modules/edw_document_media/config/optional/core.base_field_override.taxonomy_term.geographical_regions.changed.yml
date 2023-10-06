@@ -1,0 +1,17 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.geographical_regions
+id: taxonomy_term.geographical_regions.changed
+field_name: changed
+entity_type: taxonomy_term
+bundle: geographical_regions
+label: Changed
+description: 'The time that the term was last edited.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: changed

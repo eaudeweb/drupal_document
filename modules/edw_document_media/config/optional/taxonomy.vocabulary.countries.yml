@@ -1,0 +1,7 @@
+langcode: en
+status: true
+dependencies: {  }
+name: Countries
+vid: countries
+description: 'A list of countries'
+weight: 0

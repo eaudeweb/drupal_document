@@ -1,0 +1,7 @@
+name: EDW Document Node
+description: The Document media type with multiple version of a file, several formats and translations.
+package: Eau de Web
+type: module
+core_version_requirement: ^9.4 || ^10
+dependencies:
+  - drupal:drupal_document

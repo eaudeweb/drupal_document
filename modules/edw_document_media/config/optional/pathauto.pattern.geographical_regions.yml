@@ -1,0 +1,32 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - language
+    - taxonomy
+id: geographical_regions
+label: 'Geographical regions'
+type: 'canonical_entities:taxonomy_term'
+pattern: '/region/[term:name]'
+selection_criteria:
+  971583c7-e3a6-4a8d-88d9-f50270619db2:
+    id: 'entity_bundle:taxonomy_term'
+    negate: false
+    uuid: 971583c7-e3a6-4a8d-88d9-f50270619db2
+    context_mapping:
+      taxonomy_term: taxonomy_term
+    bundles:
+      geographical_regions: geographical_regions
+  6c2e6a6e-ea36-4aff-aee9-84e976b90439:
+    id: language
+    negate: false
+    uuid: 6c2e6a6e-ea36-4aff-aee9-84e976b90439
+    context_mapping:
+      language: 'taxonomy_term:langcode:language'
+    langcodes:
+      en: en
+selection_logic: and
+weight: -8
+relationships:
+  'taxonomy_term:langcode:language':
+    label: Language

@@ -1,0 +1,7 @@
+langcode: en
+status: true
+dependencies: {  }
+name: 'Geographical Regions'
+vid: geographical_regions
+description: 'The list of geographic regions.'
+weight: 0

@@ -1,0 +1,7 @@
+langcode: en
+status: true
+dependencies: {  }
+name: 'Document types'
+vid: document_types
+description: ''
+weight: 0

@@ -3,7 +3,6 @@ status: true
 dependencies:
   config:
     - field.field.node.document.body
-    - field.field.node.document.field_document_type
     - field.field.node.document.field_external_links
     - field.field.node.document.field_files
     - node.type.document
@@ -15,7 +14,7 @@ targetEntityType: node
 bundle: document
 mode: default
 content:
-  field_document_type:
+  field_document_types:
     type: entity_reference_label
     label: inline
     settings:
@@ -47,4 +46,5 @@ content:
 hidden:
   body: true
   langcode: true
+  field_document_type: true
   field_external_links: true

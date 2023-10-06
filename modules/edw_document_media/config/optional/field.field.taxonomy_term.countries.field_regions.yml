@@ -2,14 +2,14 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_document_type
-    - node.type.document
-    - taxonomy.vocabulary.document_types
-id: node.document.field_document_type
-field_name: field_document_type
-entity_type: node
-bundle: document
-label: 'Document type'
+    - field.storage.taxonomy_term.field_regions
+    - taxonomy.vocabulary.countries
+    - taxonomy.vocabulary.geographical_regions
+id: taxonomy_term.countries.field_regions
+field_name: field_regions
+entity_type: taxonomy_term
+bundle: countries
+label: Regions
 description: ''
 required: false
 translatable: false
@@ -19,7 +19,7 @@ settings:
   handler: 'default:taxonomy_term'
   handler_settings:
     target_bundles:
-      document_types: document_types
+      geographical_regions: geographical_regions
     sort:
       field: name
       direction: asc

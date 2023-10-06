@@ -1,0 +1,15 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.document_types
+id: taxonomy_term.document_types
+targetEntityType: taxonomy_term
+bundle: document_types
+action: page_redirect
+no_bypass: false
+bypass_message: false
+configuration:
+  redirect: '<front>'
+  redirect_code: 301
+  redirect_fallback_action: access_denied
