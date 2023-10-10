@@ -75,7 +75,7 @@ display:
           action_title: Action
           include_exclude: include
           selected_actions:
-            - node_download_documents_action
+            - media_download_documents_action
           link_to_item: 0
           use_highlighting: 0
         search_api_rendered_item:
@@ -371,7 +371,7 @@ display:
           force_selection_info: false
           selected_actions:
             -
-              action_id: node_download_documents_action
+              action_id: media_download_documents_action
               preconfiguration:
                 add_confirmation: false
         search_api_rendered_item:

@@ -1,0 +1,25 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.event.body
+    - field.field.node.event.field_content
+    - field.field.node.event.field_date_notes
+    - field.field.node.event.field_date_range
+    - field.field.node.event.field_hide_date
+    - field.field.node.event.field_number
+    - node.type.event
+id: node.event.teaser
+targetEntityType: node
+bundle: event
+mode: teaser
+content: {  }
+hidden:
+  body: true
+  field_content: true
+  field_date_notes: true
+  field_date_range: true
+  field_hide_date: true
+  field_number: true
+  langcode: true
+  links: true

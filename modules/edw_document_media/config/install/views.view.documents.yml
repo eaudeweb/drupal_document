@@ -9,7 +9,6 @@ dependencies:
   module:
     - entity_browser
     - media
-    - node
     - taxonomy
     - user
 id: documents
@@ -1733,7 +1732,7 @@ display:
       relationships: {  }
       display_description: ''
       display_extenders: {  }
-      path: admin/content/documents
+      path: admin/media/documents
       menu:
         type: tab
         title: 'Meeting Documents'

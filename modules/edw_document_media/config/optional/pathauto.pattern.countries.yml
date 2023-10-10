@@ -5,7 +5,7 @@ dependencies:
     - language
     - taxonomy
 id: countries
-label: 'Geographical regions'
+label: 'Countries'
 type: 'canonical_entities:taxonomy_term'
 pattern: '/countries/[term:name]'
 selection_criteria:

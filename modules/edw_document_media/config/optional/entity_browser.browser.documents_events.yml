@@ -1,0 +1,30 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.events
+  module:
+    - views
+name: documents_events
+label: 'Document''s events'
+display: modal
+display_configuration:
+  width: ''
+  height: ''
+  link_text: 'Select events(s)'
+  auto_open: false
+selection_display: no_display
+selection_display_configuration: {  }
+widget_selector: single
+widget_selector_configuration: {  }
+widgets:
+  739a6bf4-76fd-4352-ab2d-40cd2c427837:
+    id: view
+    uuid: 739a6bf4-76fd-4352-ab2d-40cd2c427837
+    label: 'Select events'
+    weight: 1
+    settings:
+      submit_text: 'Select events(s)'
+      auto_select: false
+      view: events
+      view_display: entity_browser_events

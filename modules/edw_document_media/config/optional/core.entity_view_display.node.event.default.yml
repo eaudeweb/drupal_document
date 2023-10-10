@@ -1,0 +1,60 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.event.body
+    - field.field.node.event.field_content
+    - field.field.node.event.field_date_notes
+    - field.field.node.event.field_date_range
+    - field.field.node.event.field_hide_date
+    - field.field.node.event.field_number
+    - node.type.event
+  module:
+    - datetime_range
+    - entity_reference_revisions
+id: node.event.default
+targetEntityType: node
+bundle: event
+mode: default
+content:
+  field_content:
+    type: entity_reference_revisions_entity_view
+    label: visually_hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_date_notes:
+    type: string
+    label: inline
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_date_range:
+    type: daterange_default
+    label: inline
+    settings:
+      timezone_override: ''
+      format_type: european_date
+      separator: '-'
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_number:
+    type: number_integer
+    label: inline
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  body: true
+  field_hide_date: true
+  langcode: true
+  links: true

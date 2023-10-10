@@ -2,18 +2,18 @@ langcode: en
 status: true
 dependencies:
   config:
-    - node.type.meeting
-id: node.meeting.promote
-field_name: promote
+    - node.type.event
+id: node.event.status
+field_name: status
 entity_type: node
-bundle: meeting
-label: 'Promoted to front page'
+bundle: event
+label: Published
 description: ''
 required: false
-translatable: true
+translatable: false
 default_value:
   -
-    value: 0
+    value: 1
 default_value_callback: ''
 settings:
   on_label: 'On'

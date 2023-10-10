@@ -2,12 +2,9 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.field.media.document.field_content
     - field.field.media.document.field_date_time
     - field.field.media.document.field_document_number
     - field.field.media.document.field_files
-    - field.field.media.document.field_image
-    - field.field.media.document.field_title
     - media.type.document
   module:
     - datetime
@@ -18,13 +15,6 @@ targetEntityType: media
 bundle: document
 mode: default
 content:
-  field_content:
-    type: text_default
-    label: above
-    settings: {  }
-    third_party_settings: {  }
-    weight: 4
-    region: content
   field_countries:
     type: entity_reference_label
     label: above
@@ -83,7 +73,7 @@ content:
     third_party_settings: {  }
     weight: 6
     region: content
-  field_title:
+  name:
     type: string
     label: above
     settings:
@@ -94,6 +84,5 @@ content:
 hidden:
   created: true
   langcode: true
-  name: true
   thumbnail: true
   uid: true

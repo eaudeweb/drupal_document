@@ -1,4 +1,3 @@
-uuid: 6c076c9e-23d9-45ba-a33d-53505fb0c86c
 langcode: en
 status: true
 dependencies:
@@ -10,7 +9,7 @@ third_party_settings:
       - main
     parent: 'main:'
 name: Meeting
-type: meeting
+type: event
 description: ''
 help: ''
 new_revision: true

@@ -4,7 +4,10 @@ package: Eau de Web
 type: module
 core_version_requirement: ^9.4 || ^10
 dependencies:
+  - drupal:datetime
+  - drupal:datetime_range
   - drupal:drupal_document
+  - drupal:entity_reference_revisions
   - drupal:select2
   - file_replace:file_replace
   - file_delete:file_delete

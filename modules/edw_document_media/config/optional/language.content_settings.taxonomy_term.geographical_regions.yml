@@ -14,4 +14,4 @@ id: taxonomy_term.geographical_regions
 target_entity_type_id: taxonomy_term
 target_bundle: geographical_regions
 default_langcode: site_default
-language_alterable: false
+language_alterable: true

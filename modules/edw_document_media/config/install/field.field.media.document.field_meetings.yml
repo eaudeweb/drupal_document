@@ -4,7 +4,6 @@ dependencies:
   config:
     - field.storage.media.field_meetings
     - media.type.document
-    - node.type.meeting
 id: media.document.field_meetings
 field_name: field_meetings
 entity_type: media
@@ -19,7 +18,7 @@ settings:
   handler: 'default:node'
   handler_settings:
     target_bundles:
-      meeting: meeting
+      event: event
     sort:
       field: _none
       direction: ASC
