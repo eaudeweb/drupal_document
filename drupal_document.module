@@ -136,14 +136,19 @@ function _drupal_document_node_download_documents_action(&$form, FormStateInterf
   $encodedIds = $form_state->getUserInput()[$id];
   if ($encodedIds) {
     $ids = [];
+    $entityTypeId = 'node';
     /** @var \Drupal\drupal_document\Services\DocumentsBulkManager $bulkManager */
     $bulkManager = \Drupal::service('document.bulk_manager');
     foreach (array_filter($form_state->getUserInput()[$id]) as $hash) {
       $entity = $bulkManager->loadEntityFromBulkFormKey($hash, $isSearchApi);
       $ids[] = $entity->id();
+      // @todo Find a better way to do this.
+      $entityTypeId = $entity->getEntityTypeId();
     }
 
-    $form = \Drupal::formBuilder()->getForm(DownloadDocumentsForm::class, $ids, 'field_files');
+    $fieldName = 'field_files';
+    \Drupal::moduleHandler()->alter('field_files', $fieldName);
+    $form = \Drupal::formBuilder()->getForm(DownloadDocumentsForm::class, $entityTypeId, $ids, $fieldName);
     $response = new AjaxResponse();
     $response->addCommand(new OpenModalDialogCommand(NULL, $form, [
       'height' => 600,

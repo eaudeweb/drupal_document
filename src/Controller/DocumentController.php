@@ -6,9 +6,9 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\OpenModalDialogCommand;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\drupal_document\Form\DownloadDocumentsForm;
-use Drupal\node\Entity\Node;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -45,8 +45,8 @@ class DocumentController extends ControllerBase implements ContainerInjectionInt
   /**
    * {@inheritdoc}
    */
-  public function modal(Node $node, string $field_name = NULL) {
-    $form = $this->formBuilder->getForm(DownloadDocumentsForm::class, [$node->id()], $field_name);
+  public function modal(ContentEntityInterface $entity, $entity_type = 'node', string $field_name = NULL) {
+    $form = $this->formBuilder->getForm(DownloadDocumentsForm::class, $entity_type, [$entity->id()], $field_name, $entity_type);
 
     $response = new AjaxResponse();
     $response->addCommand(new OpenModalDialogCommand(NULL, $form, [

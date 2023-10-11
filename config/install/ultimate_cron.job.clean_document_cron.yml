@@ -3,7 +3,7 @@ status: true
 dependencies:
   module:
     - drupal_document
-title: 'Document cleap-up cron'
+title: 'Document Clean-up cron'
 id: clean_document_cron
 weight: 0
 module: drupal_document

@@ -1,10 +1,10 @@
-(function ($, Drupal) {
+(function ($, Drupal, once) {
 
   'use strict';
 
   Drupal.behaviors.documentsForm = {
     attach: function (context) {
-      $('.documents-bulk-form>table').once('documentsBulkTable')
+      $(once('documentsBulkTable', '.documents-bulk-form>table'))
           .each(function () {
             var columns = $(this).find('>thead >tr th').length;
             var emptyTable = $(this).find('td.views-empty').length !== 0;
@@ -19,7 +19,7 @@
         var parentForm = $(this).closest('.documents-bulk-form');
         rebuildFormElements(parentForm);
       });
-      $('.download-documents-clear-button').once('bindToDownloadForm')
+      $(once('bindToDownloadForm', '.download-documents-clear-button'))
           .on('click', function (event) {
             event.preventDefault();
             var parentForm = $(this).closest('form.documents-bulk-form');
@@ -93,4 +93,4 @@
     }
   }
 
-}(jQuery, Drupal));
+}(jQuery, Drupal, once));

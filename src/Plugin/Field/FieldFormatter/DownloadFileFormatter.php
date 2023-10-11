@@ -71,6 +71,7 @@ class DownloadFileFormatter extends GenericFileFormatter implements ContainerFac
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $entity = $items->getEntity();
+    $this->documentManager->setEntityTypeId($entity->getEntityTypeId());
 
     // Downloaded directly when is only one file or files with same format and
     // the same language.
@@ -99,7 +100,8 @@ class DownloadFileFormatter extends GenericFileFormatter implements ContainerFac
       '#button' => [
         '#type' => 'link',
         '#url' => Url::fromRoute('document.modal', [
-          'node' => $entity->id(),
+          'entity_type' => $entity->getEntityTypeId(),
+          'entity' => $entity->id(),
           'field_name' => $items->getName(),
         ]),
         '#title' => $this->getSetting('button_title'),

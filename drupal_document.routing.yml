@@ -1,5 +1,5 @@
 document.modal:
-  path: '/document-download/modal/{node}/{field_name}'
+  path: '/document-download/modal/{entity_type}/{entity}/{field_name}'
   defaults:
     _title: 'Modal'
     _controller: '\Drupal\drupal_document\Controller\DocumentController::modal'
@@ -8,8 +8,8 @@ document.modal:
     node: \d+
   options:
     parameters:
-      node:
-        type: entity:node
+      entity:
+        type: entity:{entity_type}
 document.download_documents_form:
   path: '/download-documents'
   defaults:

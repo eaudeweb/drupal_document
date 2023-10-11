@@ -31,6 +31,8 @@ class DocumentManager {
     'image' => "IMG",
   ];
 
+  protected $entityTypeId = 'node';
+
   /**
    * The current route match service.
    *
@@ -164,6 +166,13 @@ class DocumentManager {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function setEntityTypeId($id) {
+    $this->entityTypeId = $id;
+  }
+
+  /**
    * If is given only a files, open in a new tab.
    *
    * @param array $url
@@ -259,9 +268,10 @@ class DocumentManager {
    */
   public function getOptions(array $nids, string $fieldName) {
     $availableLanguages = $availableFormats = [];
-    $result = $this->database->select("node__{$fieldName}", 'f')
+    $result = $this->database->select("{$this->entityTypeId}__{$fieldName}", 'f')
       ->fields('f', ["{$fieldName}_target_id", 'langcode']);
     $result->condition('f.entity_id', $nids, 'IN');
+    $result->condition("f.{$fieldName}_display", 1);
     $results = $result->execute()->fetchAll();
     $availableLanguages = array_column($results, 'langcode');
     $fids = array_column($results, "{$fieldName}_target_id");
@@ -291,7 +301,7 @@ class DocumentManager {
    *   An array with URLs.
    */
   public function getFilteredFiles(array $nids, string $fieldName, array $formats, array $languages) {
-    $result = $this->database->select("node__{$fieldName}", 'f')->fields('f', ["{$fieldName}_target_id"]);
+    $result = $this->database->select("{$this->entityTypeId}__{$fieldName}", 'f')->fields('f', ["{$fieldName}_target_id"]);
     $result->condition('f.entity_id', $nids, 'IN');
     $result->condition('f.langcode', $languages, 'IN');
     $fids = $result->execute()->fetchCol();
@@ -342,8 +352,12 @@ class DocumentManager {
    */
   public function getExternalLinks(array $ids, string $linksFieldName) {
     $items = [];
-    $entities = $this->entityTypeManager->getStorage('node')->loadMultiple($ids);
+    $entities = $this->entityTypeManager->getStorage($this->entityTypeId)->loadMultiple($ids);
+    /** @var \Drupal\Core\Entity\EntityInterface $entity */
     foreach ($entities as $entity) {
+      if (!$entity->hasField($linksFieldName) || $entity->get($linksFieldName)->isEmpty()) {
+        continue;
+      }
       $items = array_merge($items, $entity->get($linksFieldName)->getValue());
     }
     foreach ($items as &$item) {

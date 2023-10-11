@@ -29,7 +29,7 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
   protected $entityTypeManager;
 
   /**
-   * A list with nodes selected. One single node if form is called from modal.
+   * A list with entities selected. One single entity if form is called from modal.
    *
    * @var array*/
   protected $entityIds = [];
@@ -40,6 +40,13 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
    * @var string
    */
   protected $fieldName;
+
+  /**
+   * The entity type.
+   *
+   * @var string
+   */
+  protected $entityTypeId;
 
   /**
    * The document manager.
@@ -84,11 +91,13 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $entityIds = NULL, $fieldName = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, $entityTypeId = 'node', $entityIds = NULL, $fieldName = NULL) {
     $form['#prefix'] = '<div id="download-documents-modal">';
     $form['#suffix'] = '</div>';
     $this->fieldName = $fieldName ?? $form_state->getUserInput()['entity_field_name'];
     $this->entityIds = $entityIds ?? explode(' ', $form_state->getUserInput()['entity_ids']);
+    $this->entityTypeId = $entityTypeId ?? $form_state->getUserInput()['entity_type_id'];
+    $this->documentManager->setEntityTypeId($this->entityTypeId);
     [$availableFormats, $availableLanguages] = $this->documentManager->getOptions($this->entityIds, $this->fieldName);
     $linksFieldName = 'field_external_links';
     // Allow other modules to alter the machine name for external links.
@@ -101,7 +110,7 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
     ];
     $form['entity_type_id'] = [
       '#type' => 'hidden',
-      '#value' => 'node',
+      '#value' => $this->entityTypeId,
     ];
     $form['entity_field_name'] = [
       '#type' => 'hidden',
@@ -218,7 +227,7 @@ class DownloadDocumentsForm extends FormBase implements ContainerInjectionInterf
     $this->preselectDefaultValues($form, $form_state);
     $formats = array_filter($form_state->getUserInput()['format']);
     $languages = array_filter($form_state->getUserInput()['language']);
-    $entities = $this->entityTypeManager->getStorage('node')->loadMultiple($this->entityIds);
+    $entities = $this->entityTypeManager->getStorage($this->entityTypeId)->loadMultiple($this->entityIds);
     $filesUrls = $this->documentManager->getFilteredFiles(array_keys($entities), $this->fieldName, $formats, $languages);
     $path = (count($filesUrls) < 2) ? $this->documentManager->downloadFile($filesUrls) : $this->documentManager->archiveFiles($filesUrls);
     if (empty($path)) {
