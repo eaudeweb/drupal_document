@@ -140,8 +140,8 @@ class FileMultiLanguageWidget extends FileWidget {
     // Update reference to 'items' stored during upload to take into account
     // changes to values like 'alt' etc.
     // @see \Drupal\file\Plugin\Field\FieldWidget\FileWidget::submit()
-    $fieldName = $this->fieldDefinition->getName();
-    $field_state = static::getWidgetState($form['#parents'], $fieldName, $form_state);
+    $field_name = $this->fieldDefinition->getName();
+    $field_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
 
     /** @var \Drupal\Core\Entity\ContentEntityBase $entity */
     $entity = $items->getEntity();
@@ -176,11 +176,11 @@ class FileMultiLanguageWidget extends FileWidget {
         $entity->getTranslation($langcode) :
         $entity->addTranslation($langcode, $values);
 
-      $translationValues = array_column($translation->get($fieldName)->getValue(), 'target_id');
+      $translationValues = array_column($translation->get($field_name)->getValue(), 'target_id');
       if (in_array($item['target_id'], $translationValues)) {
         continue;
       }
-      $translation->get($fieldName)->appendItem($item);
+      $translation->get($field_name)->appendItem($item);
     }
 
     $field_state['items'] = $currentItems;
@@ -190,7 +190,7 @@ class FileMultiLanguageWidget extends FileWidget {
       }
     }
 
-    static::setWidgetState($form['#parents'], $fieldName, $form_state, $field_state);
+    static::setWidgetState($form['#parents'], $field_name, $form_state, $field_state);
   }
 
   /**
