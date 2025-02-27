@@ -3,16 +3,12 @@ download:
     js/download-documents.js: {}
   dependencies:
     - core/jquery
-    - core/jquery.once
+    - core/once
 
 documents_form:
   js:
     js/documents-form.js: {}
-  dependecies:
+  dependencies:
     - core/jquery
-    - core/jquery.once
     - core/drupal
-    - core/drupalSettings
-    - datatables/datatables_core
-    - datatables/datatables_buttons
-    - drupal.tableselect
+    - core/once
