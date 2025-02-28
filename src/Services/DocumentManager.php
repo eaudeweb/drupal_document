@@ -32,6 +32,13 @@ class DocumentManager {
   ];
 
   /**
+   * The current directory path.
+   *
+   * @var string
+   */
+  protected $directory;
+
+  /**
    * The current route match service.
    *
    * @var \Drupal\Core\Routing\CurrentRouteMatch
@@ -209,7 +216,11 @@ class DocumentManager {
     $files = $this->entityTypeManager->getStorage('file')->loadMultiple($fids);
     foreach ($files as $file) {
       $filepath = $file->getFileUri();
+      if (!file_exists($filepath)) {
+        continue;
+      }
       $content = file_get_contents($filepath);
+
       if (!empty($content)) {
         $this->archive->addFromString($file->label(), $content);
       }
