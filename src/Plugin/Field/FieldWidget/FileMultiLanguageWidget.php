@@ -128,6 +128,13 @@ class FileMultiLanguageWidget extends FileWidget {
       ];
       if ($entity->hasTranslation($language->getId())) {
         $translatedField = $entity->getTranslation($language->getId())->get($fieldName);
+        $field_state = static::getWidgetState($form['#parents'], $this->fieldDefinition->getName(), $form_state);
+        if ($this->getCurrentTabLanguage() != $language->getId() && isset($field_state['items'])) {
+          // If the current tab language doesn't match the language being
+          // processed, removes any existing items from the field state to
+          // ensure a correct generation for remove_buttons.
+          unset($field_state['items']);
+        }
         $elements['languages'][$language->getId()]['data'] = parent::formMultipleElements($translatedField, $form, $form_state);
         continue;
       }
@@ -146,28 +153,9 @@ class FileMultiLanguageWidget extends FileWidget {
   public function extractFormValues(FieldItemListInterface $items, array $form, FormStateInterface $form_state) {
     // Rewrite the parent::extractFormValues() from WidgetBase.
     $formValues = $this->extractFormValuesMultiLanguage($items, $form, $form_state);
-    // Update reference to 'items' stored during upload to take into account
-    // changes to values like 'alt' etc.
-    // @see \Drupal\file\Plugin\Field\FieldWidget\FileWidget::submit()
-    $field_name = $this->fieldDefinition->getName();
-    $field_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
 
     /** @var \Drupal\Core\Entity\ContentEntityBase $entity */
     $entity = $items->getEntity();
-
-    $values = [];
-    $translatableFields = $entity->getTranslatableFields(FALSE);
-    foreach ($translatableFields as $fieldName => $fieldConfig) {
-      switch ($fieldConfig->getFieldDefinition()->getType()) {
-        case 'entity_reference':
-        case 'text_with_summary':
-          $fieldValue = $entity->get($fieldName)->getValue();
-          break;
-        default:
-          $fieldValue = $entity->get($fieldName)->value;
-      }
-      $values[$fieldName] = $fieldValue;
-    }
     $translationFiles = [];
 
     foreach ($entity->getTranslationLanguages() as $language) {
@@ -183,11 +171,9 @@ class FileMultiLanguageWidget extends FileWidget {
     foreach ($translationFiles as $languageId => $translationFileItems) {
       $translation = $entity->hasTranslation($languageId) ?
         $entity->getTranslation($languageId) :
-        $entity->addTranslation($languageId, $values);
+        $entity->addTranslation($languageId, $entity->toArray());
       $translation->set($fileFieldName, $translationFileItems);
     }
-    $field_state['items'] = $formValues;
-    static::setWidgetState($form['#parents'], $field_name, $form_state, $field_state);
   }
 
   /**
@@ -261,8 +247,15 @@ class FileMultiLanguageWidget extends FileWidget {
       // Let the widget massage the submitted values.
       $values = $this->massageFormValues($values, $form, $form_state);
 
+      $currentLangTab = $this->getCurrentTabLanguage();
+      $currentTabItems = array_filter($values, function ($value) use ($currentLangTab) {
+        if ($value['language'] == $currentLangTab) {
+          return $value;
+        }
+      });
+
       // Assign the values and remove the empty ones.
-      $items->setValue($values);
+      $items->setValue($currentTabItems);
       $items->filterEmptyItems();
 
       // Put delta mapping in $form_state, so that flagErrors() can use it.
@@ -271,9 +264,29 @@ class FileMultiLanguageWidget extends FileWidget {
         $field_state['original_deltas'][$delta] = $item->_original_delta ?? $delta;
         unset($item->_original_delta, $item->_weight);
       }
+      $field_state['items'] = $items->getValue();
       static::setWidgetState($form['#parents'], $fieldName, $form_state, $field_state);
     }
     return $values;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function processMultiple($element, FormStateInterface $form_state, $form) {
+    $triggeringElement = $form_state->getTriggeringElement();
+    $buttons = $form_state->getButtons();
+    if (empty($triggeringElement) || $form_state->getTriggeringElement()['#name'] == $form_state->getUserInput()['_triggering_element_name']) {
+      return parent::processMultiple($element, $form_state, $form);
+    }
+    $currentTriggeringId = $form_state->getUserInput()['_triggering_element_name'];
+    if (!in_array($currentTriggeringId, array_column($form_state->getButtons(), '#name'))) {
+      return parent::processMultiple($element, $form_state, $form);
+    }
+    $key = array_search($currentTriggeringId, array_column($form_state->getButtons(), '#name'));
+    $triggeringElement = $buttons[$key] ?? NULL;
+    $form_state->setTriggeringElement($triggeringElement);
+    return parent::processMultiple($element, $form_state, $form);
   }
 
   /**
@@ -284,6 +297,23 @@ class FileMultiLanguageWidget extends FileWidget {
       $items->removeItem(0);
     }
     return $items;
+  }
+
+  /**
+   * Get the language of the active tab.
+   *
+   * @return string
+   *   Return the langcode.
+   */
+  protected function getCurrentTabLanguage() {
+    $requestValues = $this->request->request->all();
+    if (!$requestValues) {
+      return $this->languageManager->getCurrentLanguage()->getId();
+    }
+    $fileFieldName = $this->fieldDefinition->getName();
+    $activeTabId = $requestValues[$fileFieldName]['languages']["{$fileFieldName}__languages__active_tab"];
+    $langcode = explode('-', $activeTabId);
+    return end($langcode);
   }
 
 }
